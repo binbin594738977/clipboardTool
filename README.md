@@ -11,4 +11,6 @@ java -Dfile.encoding=UTF-8 -jar xxx.jar
 ```
 
 # 注意
-目前只支持android9.0以下包括9.0
+- 目前只支持android9.0以下包括9.0
+
+- 设置剪贴板不能有空格
