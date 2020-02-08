@@ -93,7 +93,7 @@ class ClipboardUi() : BaseComponent() {
 
     fun setClipboard(text: String) {
         MyUtil.exec("adb shell am startservice ca.zgrs.clipper/.ClipboardService")
-        MyUtil.exec("adb shell am broadcast -a clipper.set -e text \"$text\"")
+        MyUtil.exec("adb shell am broadcast -a clipper.set -e text '$text'")
     }
 
     fun getClipboard(): String {
