@@ -33,7 +33,7 @@ class ClipboardUi() : BaseComponent() {
         textField.setEditable(false)
         textField.preferredSize = Dimension(width, 100)
         textField.font = Font("字体", Font.BOLD, 20)
-        textField.text = "本操作依赖adb操作,需要电脑配置jdk以及环境变量"
+        textField.text = "本操作依赖adb操作,需要电脑配置sdk以及环境变量"
         textField.horizontalAlignment = JTextField.CENTER
         descTextPanel.add(textField)
         //文字<内容>
