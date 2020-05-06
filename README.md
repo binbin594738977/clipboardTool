@@ -1,7 +1,7 @@
 # 说明
 android的剪贴板界面操作工具,非常方便,可以通过电脑设备,得到手机的剪贴板内容,设置剪贴板内容
  
-![img](https://imgconvert.csdnimg.cn/aHR0cHM6Ly9yYXcuZ2l0aHVidXNlcmNvbnRlbnQuY29tL2JpbmJpbjU5NDczODk3Ny9jbGlwYm9hcmRUb29sL21hc3Rlci9yZXNvdXJjZXMvYWEucG5n?x-oss-process=image/format,png)
+![img](https://github.com/binbin594738977/clipboardTool/blob/master/resources/aa.png)
  
 # 工具下载地址
 https://github.com/binbin594738977/clipboardTool/releases/tag/v1.2
