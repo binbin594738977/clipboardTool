@@ -18,14 +18,11 @@ public class MyUtil {
         InputStreamReader ir = null;
         LineNumberReader input = null;
         try {
-            Process p = null;
             String os_name = System.getProperty("os.name");
-            if (os_name != null && os_name.contains("Mac")) {
-                String[] execCommand = {"/bin/bash", "-c", str};
-                p = Runtime.getRuntime().exec(execCommand);
-            } else {
-                p = Runtime.getRuntime().exec(str);
+            if (os_name != null && os_name.contains("Mac") && str.startsWith("adb")) {
+                str = "/Users/fuheng/Library/Android/sdk/platform-tools/" + str;
             }
+            Process p = Runtime.getRuntime().exec(str);
             ir = new InputStreamReader(p.getInputStream());
             input = new LineNumberReader(ir);      //创建IO管道，准备输出命令执行后的显示内容
             String line;
@@ -44,6 +41,33 @@ public class MyUtil {
                 if (input != null) input.close();
             } catch (IOException e) {
             }
+        }
+        return arr;
+    }
+
+
+    public static List<String> exec1() {
+        List<String> arr = new ArrayList<>();
+        List<String> command = new ArrayList<>();
+        command.add("/bin/bash");
+        command.add("-c");
+        command.add("adb");
+        try {
+            ProcessBuilder builder = new ProcessBuilder(command);
+            builder.redirectErrorStream(true);
+            Process process = builder.start();
+            InputStream in = process.getInputStream();
+            byte[] re = new byte[1024];
+            while (in.read(re) != -1) {
+                MLog.log("==>" + new String(re));
+                arr.add(new String(re, "UTF-8"));
+            }
+            in.close();
+            if (process.isAlive()) {
+                process.waitFor();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         return arr;
     }
