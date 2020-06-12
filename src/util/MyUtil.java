@@ -18,10 +18,10 @@ public class MyUtil {
         InputStreamReader ir = null;
         LineNumberReader input = null;
         try {
-            String os_name = System.getProperty("os.name");
-            if (os_name != null && os_name.contains("Mac") && str.startsWith("adb")) {
-                str = "/Users/fuheng/Library/Android/sdk/platform-tools/" + str;
-            }
+//            String os_name = System.getProperty("os.name");
+//            if (os_name != null && os_name.contains("Mac") && str.startsWith("adb")) {
+//                str = "/Users/fuheng/Library/Android/sdk/platform-tools/" + str;
+//            }
             Process p = Runtime.getRuntime().exec(str);
             ir = new InputStreamReader(p.getInputStream());
             input = new LineNumberReader(ir);      //创建IO管道，准备输出命令执行后的显示内容
