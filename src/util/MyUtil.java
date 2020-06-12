@@ -1,6 +1,7 @@
 package util;
 
 import com.sun.istack.internal.Nullable;
+
 import core.Config;
 
 import java.io.*;
@@ -22,11 +23,11 @@ public class MyUtil {
             input = new LineNumberReader(ir);      //创建IO管道，准备输出命令执行后的显示内容
             String line;
             while ((line = input.readLine()) != null) {     //按行打印输出内容
-//                System.out.println(line);
+                MLog.log(line);
                 arr.add(new String(line.getBytes(), "UTF-8"));
             }
         } catch (IOException e1) {
-            e1.printStackTrace();
+            MLog.log(e1);
         } finally {
             try {
                 if (ir != null) ir.close();
@@ -107,6 +108,28 @@ public class MyUtil {
             Utility.streamToFile(resourcesInputStream, file);
         }
         return file;
+    }
+
+    /**
+     * 打印File
+     */
+    public static void printFile(String content, File file, boolean append) {
+        FileWriter fw = null;
+        if (file == null) return;
+        try {
+            if (!file.getParentFile().exists()) {
+                file.getParentFile().mkdirs();
+            }
+            if (!file.exists()) {
+                file.createNewFile();
+            }
+            fw = new FileWriter(file, append);
+            BufferedWriter out = new BufferedWriter(fw);
+            out.write(content, 0, content.length());
+            out.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public static void test() {

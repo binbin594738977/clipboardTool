@@ -5,6 +5,7 @@ import base.BaseComponent
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import dialog.MyDialog
+import util.MLog
 import util.MyUtil
 import java.awt.*
 import javax.swing.*
@@ -103,11 +104,11 @@ class ClipboardUi() : BaseComponent() {
             var str = execResult.get(1)
             val top = "Broadcast completed: "
             str = str.substring(top.length)
-            println("剪贴板内容11==>" + str)
+            MLog.log("剪贴板内容11==>" + str)
             val fromJson = Gson().fromJson<JsonObject>("{${str}}", JsonObject::class.java)
             val data = fromJson.get("data").asString
             //按行打印输出内容
-            println("剪贴板内容==>" + data)
+            MLog.log("剪贴板内容==>" + data)
             return data;
         }
         return ""
