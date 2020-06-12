@@ -1,7 +1,10 @@
 
+import java.util.List;
+
 import base.BaseComponent;
 import component.ClipboardUi;
 import util.MLog;
+import util.MyUtil;
 import util.ThreadQueue;
 
 public class Main {
@@ -15,7 +18,7 @@ public class Main {
         for (String arg : args) {
             System.out.println("arg = " + arg);
         }
-        if (args != null && args.length > 0) {
+        if (args.length > 0) {
             MLog.setLogMod(Integer.parseInt(args[0]));
         }
         threadQueue = ThreadQueue.createAndStart();

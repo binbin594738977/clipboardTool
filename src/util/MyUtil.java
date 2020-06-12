@@ -18,7 +18,14 @@ public class MyUtil {
         InputStreamReader ir = null;
         LineNumberReader input = null;
         try {
-            Process p = Runtime.getRuntime().exec(str);
+            Process p = null;
+            String os_name = System.getProperty("os.name");
+            if (os_name != null && os_name.contains("Mac")) {
+                String[] execCommand = {"/bin/bash", "-c", str};
+                p = Runtime.getRuntime().exec(execCommand);
+            } else {
+                p = Runtime.getRuntime().exec(str);
+            }
             ir = new InputStreamReader(p.getInputStream());
             input = new LineNumberReader(ir);      //创建IO管道，准备输出命令执行后的显示内容
             String line;
