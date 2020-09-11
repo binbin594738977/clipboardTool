@@ -16,6 +16,8 @@ public class MyUtil {
     }
 
     public static List<String> exec(String str) {
+        MLog.log("----------------------------------------------------");
+        MLog.log("命令: " + str);
         List<String> arr = new ArrayList<>();
         InputStreamReader ir = null;
         LineNumberReader input = null;
@@ -28,10 +30,12 @@ public class MyUtil {
             ir = new InputStreamReader(p.getInputStream());
             input = new LineNumberReader(ir);      //创建IO管道，准备输出命令执行后的显示内容
             String line;
+            MLog.log("--------------结果start---------------------");
             while ((line = input.readLine()) != null) {     //按行打印输出内容
                 MLog.log(line);
                 arr.add(new String(line.getBytes(), "UTF-8"));
             }
+            MLog.log("--------------结果end---------------------");
         } catch (IOException e1) {
             MLog.log(e1);
         } finally {

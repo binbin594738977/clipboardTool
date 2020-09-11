@@ -94,15 +94,15 @@ class ClipboardUi() : BaseComponent() {
             }
         }
         verateBox.add(descTextPanel)
-        verateBox.add(Box.createVerticalStrut(20));    //添加高度为20的垂直框架
+        verateBox.add(Box.createVerticalStrut(15));    //添加高度为15的垂直框架
         verateBox.add(btnSelectDevice)
-        verateBox.add(Box.createVerticalStrut(20));    //添加高度为20的垂直框架
+        verateBox.add(Box.createVerticalStrut(15));    //添加高度为15的垂直框架
         verateBox.add(btnInstallApk)
-        verateBox.add(Box.createVerticalStrut(20));    //添加高度为20的垂直框架
+        verateBox.add(Box.createVerticalStrut(15));    //添加高度为15的垂直框架
         verateBox.add(btnSetClipboard)
-        verateBox.add(Box.createVerticalStrut(20));    //添加高度为20的垂直框架
+        verateBox.add(Box.createVerticalStrut(15));    //添加高度为15的垂直框架
         verateBox.add(btnGetClipboard)
-        verateBox.add(Box.createVerticalStrut(20));    //添加高度为20的垂直框架
+        verateBox.add(Box.createVerticalStrut(15));    //添加高度为15的垂直框架
         verateBox.add(textArea)
         return p1
     }
