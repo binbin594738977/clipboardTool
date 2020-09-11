@@ -5,6 +5,8 @@ import java.awt.*;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import util.MyUtil;
+
 @SuppressWarnings("serial")
 public class MyDialog extends JWindow {
 
@@ -19,13 +21,12 @@ public class MyDialog extends JWindow {
         dialog.back.setText(str);
         dialog.setVisible(false);
         dialog.setVisible(true);
-        Timer timer = new Timer();// 实例化Timer类
-        timer.schedule(new TimerTask() {
+        MyUtil.timerDelayed(new TimerTask() {
             public void run() {
                 dialog.setVisible(false);
                 dialog.dispose();
             }
-        }, 1000);// 这里百毫秒
+        }, 1000);
     }
 
     private MyDialog(String str) {

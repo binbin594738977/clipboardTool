@@ -2,6 +2,9 @@ package util;
 
 import java.util.concurrent.LinkedBlockingQueue;
 
+/**
+ * 线程队列
+ */
 public class ThreadQueue extends Thread {
     private LinkedBlockingQueue<Runnable> queue = new LinkedBlockingQueue<>();
 

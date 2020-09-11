@@ -24,6 +24,8 @@ public class Main {
         threadQueue = ThreadQueue.createAndStart();
         BaseComponent jFrame = new ClipboardUi();
         jFrame.setVisible(true);//设置开始显
+
+
     }
 
     public static ThreadQueue getThreadQueue() {

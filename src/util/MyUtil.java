@@ -7,6 +7,8 @@ import core.Config;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class MyUtil {
     public static boolean isEmpty(@Nullable CharSequence str) {
@@ -161,6 +163,11 @@ public class MyUtil {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public static void timerDelayed(TimerTask task, long delayed) {
+        Timer timer = new Timer();// 实例化Timer类
+        timer.schedule(task, delayed);// 这里毫秒
     }
 
     public static void test() {

@@ -13,6 +13,8 @@ public class Config {
     private static final String PROVIDE_HOST = "";
     private static final String PROVIDE_TEST_HOST = "";
 
+    private static String deviceId = "";
+
     public static boolean hasTest = false;
 
     /**
@@ -48,5 +50,11 @@ public class Config {
         }
     }
 
+    public static void setDeviceId(String deviceId) {
+        Config.deviceId = deviceId;
+    }
 
+    public static String getDeviceId() {
+        return deviceId;
+    }
 }

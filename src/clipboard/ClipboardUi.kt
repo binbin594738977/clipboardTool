@@ -4,6 +4,7 @@ package component
 import base.BaseComponent
 import com.google.gson.Gson
 import com.google.gson.JsonObject
+import core.Config
 import dialog.MyDialog
 import util.MLog
 import util.MyUtil
@@ -11,6 +12,7 @@ import java.awt.*
 import javax.swing.*
 
 class ClipboardUi() : BaseComponent() {
+    var jdeviceIdButton = JButton("设备(点击选择): 默认")
 
     init {
         layout = FlowLayout()
@@ -44,8 +46,19 @@ class ClipboardUi() : BaseComponent() {
         textArea.preferredSize = Dimension(width, 100)
         textArea.font = Font("字体", Font.BOLD, 20)
         //按钮<安装apk>
+        val btnSelectDevice = JPanel()
+        var btn = btnSelectDevice.add(jdeviceIdButton) as JButton
+        btn.margin = Insets(5, 5, 5, 5)
+        btn.font = Font("字体", Font.BOLD, 25)
+        btn.horizontalAlignment = SwingConstants.CENTER
+        btn.addActionListener {
+            Main.getThreadQueue().post {
+                selectDeviceId()
+            }
+        }
+        //按钮<安装apk>
         val btnInstallApk = JPanel()
-        var btn = btnInstallApk.add(JButton("安装必要apk")) as JButton
+        btn = btnInstallApk.add(JButton("安装必要apk")) as JButton
         btn.margin = Insets(5, 5, 5, 5)
         btn.font = Font("字体", Font.BOLD, 25)
         btn.horizontalAlignment = SwingConstants.CENTER
@@ -82,6 +95,8 @@ class ClipboardUi() : BaseComponent() {
         }
         verateBox.add(descTextPanel)
         verateBox.add(Box.createVerticalStrut(20));    //添加高度为20的垂直框架
+        verateBox.add(btnSelectDevice)
+        verateBox.add(Box.createVerticalStrut(20));    //添加高度为20的垂直框架
         verateBox.add(btnInstallApk)
         verateBox.add(Box.createVerticalStrut(20));    //添加高度为20的垂直框架
         verateBox.add(btnSetClipboard)
@@ -92,20 +107,77 @@ class ClipboardUi() : BaseComponent() {
         return p1
     }
 
+    /**
+     * 选择设备id
+     */
+    private fun selectDeviceId(): String {
+        val devices = getDevices()
+        val selectIndex = JOptionPane.showOptionDialog(this, "请选择设备...", "提示", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, devices.toTypedArray(), null)
+        if (selectIndex != -1) {
+            val deviceId = devices.get(selectIndex)
+            jdeviceIdButton.text = "设备(点击选择): " + deviceId
+            Config.setDeviceId(deviceId)
+            MLog.log("选择了 ${selectIndex} ,设备id: ${deviceId}")
+            return deviceId
+        }
+        return ""
+    }
+
+    fun getDevices(): List<String> {
+        val arrayList = ArrayList<String>()
+        val results = MyUtil.exec("adb devices")
+        if (results.size <= 2) {
+            MyDialog.show("没有设备连接")
+        } else {
+            for (result in results) {
+                val split = result.split("\t")
+                if (split.size > 1) {
+                    arrayList.add(split[0])
+                    println(split[0])
+                }
+            }
+        }
+        return arrayList
+    }
+
+    /**
+     * 得到选择设备的命令 -s c6de1086 , 没有设备会为""
+     */
+    fun getDeviceExec(): String {
+        val devices = getDevices()
+        if (devices.size == 0) {
+            //没有设备连接
+            return ""
+        } else if (devices.size >= 2) {
+            //多个设备连接,先判断是否由指定的设备
+            //如果指定的deviceid包含在内,直接用
+            val deviceId = Config.getDeviceId()
+            if (devices.contains(deviceId)) {
+                return "-s ${deviceId}"
+            }
+            //如果不包含,先选择
+            return selectDeviceId()
+        } else {
+            //只有一个设备
+            return "-s ${devices.get(0)}"
+        }
+    }
+
+
     fun setClipboard(text: String) {
-        MyUtil.exec("adb shell am startservice ca.zgrs.clipper/.ClipboardService")
-        MyUtil.exec("adb shell am broadcast -a clipper.set -e text '$text'")
+        MyUtil.exec("adb ${getDeviceExec()} shell am startservice ca.zgrs.clipper/.ClipboardService")
+        MyUtil.exec("adb ${getDeviceExec()} shell am broadcast -a clipper.set -e text '$text'")
     }
 
     fun getClipboard(): String {
-        MyUtil.exec("adb shell am startservice ca.zgrs.clipper/.ClipboardService")
-        val execResult = MyUtil.exec("adb shell am broadcast -a clipper.get")
+        MyUtil.exec("adb ${getDeviceExec()} shell am startservice ca.zgrs.clipper/.ClipboardService")
+        val execResult = MyUtil.exec("adb ${getDeviceExec()} shell am broadcast -a clipper.get")
         if (execResult != null && execResult.size == 2) {
             var str = execResult.get(1)
             val top = "Broadcast completed: "
             str = str.substring(top.length)
             MLog.log("剪贴板内容11==>" + str)
-            val fromJson = Gson().fromJson<JsonObject>("{${str}}", JsonObject::class.java)
+            val fromJson = Gson().fromJson("{${str}}", JsonObject::class.java)
             val data = fromJson.get("data").asString
             //按行打印输出内容
             MLog.log("剪贴板内容==>" + data)
@@ -116,7 +188,7 @@ class ClipboardUi() : BaseComponent() {
 
     fun installApk(): String {
         val apkFile = MyUtil.getResourcesFile("apk/clipper.apk")
-        val exec = MyUtil.exec("adb install -r ${apkFile.absoluteFile}")
+        val exec = MyUtil.exec("adb ${getDeviceExec()} install -r ${apkFile.absoluteFile}")
         var str = "完成"
         for (s in exec) {
             str = str + "\n\r" + s;
