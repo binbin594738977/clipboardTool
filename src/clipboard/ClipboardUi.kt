@@ -1,6 +1,7 @@
 package component
 
 
+import Main
 import base.BaseComponent
 import com.google.gson.Gson
 import com.google.gson.JsonObject
@@ -9,11 +10,17 @@ import dialog.MyDialog
 import util.MLog
 import util.MyUtil
 import util.StringUtil
-import java.awt.*
+import java.awt.Dimension
+import java.awt.FlowLayout
+import java.awt.Font
+import java.awt.Insets
 import javax.swing.*
 
 class ClipboardUi() : BaseComponent() {
     var jdeviceIdButton = JButton("设备ID: (点击选择)")
+
+    //设备id
+     var mDeviceId = ""
 
     init {
         layout = FlowLayout()
@@ -137,7 +144,7 @@ class ClipboardUi() : BaseComponent() {
      */
     fun setDeviceId(deviceId: String) {
         jdeviceIdButton.text = "设备ID: " + deviceId
-        Config.setDeviceId(deviceId)
+        mDeviceId = deviceId
     }
 
     /**
@@ -171,9 +178,8 @@ class ClipboardUi() : BaseComponent() {
         } else if (devices.size >= 2) {
             //多个设备连接,先判断是否由指定的设备
             //如果指定的deviceid包含在内,直接用
-            val deviceId = Config.getDeviceId()
-            if (devices.contains(deviceId)) {
-                return "-s ${deviceId}"
+            if (devices.contains(mDeviceId)) {
+                return "-s ${mDeviceId}"
             }
             //如果不包含,先选择
             return selectDeviceId()

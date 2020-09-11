@@ -1,8 +1,7 @@
 package core;
 
 public class Config {
-    public static final String VERSION = "1.3";
-    public static final String TITLE = "工具箱";
+    public static final String VERSION = "1.4";
 
     private static final String HOST = "";
     private static final String TEST_HOST = "";
@@ -12,8 +11,6 @@ public class Config {
 
     private static final String PROVIDE_HOST = "";
     private static final String PROVIDE_TEST_HOST = "";
-
-    private static String deviceId = "";
 
     public static boolean hasTest = false;
 
@@ -48,13 +45,5 @@ public class Config {
         } else {
             return PROVIDE_HOST;
         }
-    }
-
-    public static void setDeviceId(String deviceId) {
-        Config.deviceId = deviceId;
-    }
-
-    public static String getDeviceId() {
-        return deviceId;
     }
 }
