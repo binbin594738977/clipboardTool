@@ -5,7 +5,6 @@ import Main
 import base.BaseComponent
 import com.google.gson.Gson
 import com.google.gson.JsonObject
-import core.Config
 import dialog.MyDialog
 import util.MLog
 import util.MyUtil
@@ -216,7 +215,7 @@ class ClipboardUi() : BaseComponent() {
             //按行打印输出内容
             MLog.log("剪贴板内容==>" + data)
             MyDialog.show("成功:得到剪贴版")
-            return data;
+            return data
         }
         MyDialog.show("失败:得到剪贴版")
         return ""

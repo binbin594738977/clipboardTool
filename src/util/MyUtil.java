@@ -52,7 +52,7 @@ public class MyUtil {
     }
 
 
-    public static List<String> exec1() {
+    public static List<String> exec1(String str) {
         List<String> arr = new ArrayList<>();
         List<String> command = new ArrayList<>();
         command.add("/bin/bash");
