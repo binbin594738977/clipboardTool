@@ -8,11 +8,12 @@ import core.Config
 import dialog.MyDialog
 import util.MLog
 import util.MyUtil
+import util.StringUtil
 import java.awt.*
 import javax.swing.*
 
 class ClipboardUi() : BaseComponent() {
-    var jdeviceIdButton = JButton("设备(点击选择): 默认")
+    var jdeviceIdButton = JButton("设备ID: (点击选择)")
 
     init {
         layout = FlowLayout()
@@ -47,6 +48,7 @@ class ClipboardUi() : BaseComponent() {
         textArea.font = Font("字体", Font.BOLD, 20)
         //按钮<安装apk>
         val btnSelectDevice = JPanel()
+
         var btn = btnSelectDevice.add(jdeviceIdButton) as JButton
         btn.margin = Insets(5, 5, 5, 5)
         btn.font = Font("字体", Font.BOLD, 25)
@@ -76,8 +78,8 @@ class ClipboardUi() : BaseComponent() {
         btn.horizontalAlignment = SwingConstants.CENTER
         btn.addActionListener {
             Main.getThreadQueue().post {
-                setClipboard(textArea.getText())
-                MyDialog.show("设置成功")
+                val result = setClipboard(textArea.getText())
+                MyDialog.show(result)
             }
         }
         //按钮<得到剪贴板>
@@ -108,32 +110,50 @@ class ClipboardUi() : BaseComponent() {
     }
 
     /**
-     * 选择设备id
+     * 选择设备id,只有一个设备不会弹框
+     * @return 如果选择了设备,返回设备id , 没有返回""
      */
     private fun selectDeviceId(): String {
         val devices = getDevices()
-        val selectIndex = JOptionPane.showOptionDialog(this, "请选择设备...", "提示", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, devices.toTypedArray(), null)
-        if (selectIndex != -1) {
-            val deviceId = devices.get(selectIndex)
-            jdeviceIdButton.text = "设备(点击选择): " + deviceId
-            Config.setDeviceId(deviceId)
-            MLog.log("选择了 ${selectIndex} ,设备id: ${deviceId}")
-            return deviceId
+        if (devices.size == 0) {
+            return ""
+        } else if (devices.size == 1) {
+            setDeviceId(devices.get(0))
+            return devices.get(0)
+        } else {
+            //多个设备
+            val selectIndex = JOptionPane.showOptionDialog(this, "请选择设备...", "提示", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, devices.toTypedArray(), null)
+            MLog.log("选择了 ${selectIndex}")
+            if (selectIndex != -1) {
+                setDeviceId(devices.get(selectIndex))
+                return devices.get(selectIndex)
+            }
         }
         return ""
     }
 
+    /**
+     * 设置设备
+     */
+    fun setDeviceId(deviceId: String) {
+        jdeviceIdButton.text = "设备ID: " + deviceId
+        Config.setDeviceId(deviceId)
+    }
+
+    /**
+     * 得到所以连接的设备
+     */
     fun getDevices(): List<String> {
         val arrayList = ArrayList<String>()
         val results = MyUtil.exec("adb devices")
         if (results.size <= 2) {
-            MyDialog.show("没有设备连接")
+            MyDialog.show("没有连接设备")
         } else {
             for (result in results) {
                 val split = result.split("\t")
                 if (split.size > 1) {
                     arrayList.add(split[0])
-                    println(split[0])
+                    MLog.log("设备id: ${split[0]}")
                 }
             }
         }
@@ -159,19 +179,25 @@ class ClipboardUi() : BaseComponent() {
             return selectDeviceId()
         } else {
             //只有一个设备
+            setDeviceId(devices.get(0))
             return "-s ${devices.get(0)}"
         }
     }
 
-
-    fun setClipboard(text: String) {
-        MyUtil.exec("adb ${getDeviceExec()} shell am startservice ca.zgrs.clipper/.ClipboardService")
-        MyUtil.exec("adb ${getDeviceExec()} shell am broadcast -a clipper.set -e text '$text'")
+    fun setClipboard(text: String): String {
+        val deviceExec = getDeviceExec()
+        if (StringUtil.isEmpty(deviceExec)) return "失败:没有连接设备"
+        MyUtil.exec("adb ${deviceExec} shell am startservice ca.zgrs.clipper/.ClipboardService")
+        MyUtil.exec("adb ${deviceExec} shell am broadcast -a clipper.set -e text '$text'")
+        return "设置成功"
     }
 
     fun getClipboard(): String {
-        MyUtil.exec("adb ${getDeviceExec()} shell am startservice ca.zgrs.clipper/.ClipboardService")
-        val execResult = MyUtil.exec("adb ${getDeviceExec()} shell am broadcast -a clipper.get")
+        val deviceExec = getDeviceExec()
+        if (StringUtil.isEmpty(deviceExec)) return "失败:没有连接设备"
+
+        MyUtil.exec("adb ${deviceExec} shell am startservice ca.zgrs.clipper/.ClipboardService")
+        val execResult = MyUtil.exec("adb ${deviceExec} shell am broadcast -a clipper.get")
         if (execResult != null && execResult.size == 2) {
             var str = execResult.get(1)
             val top = "Broadcast completed: "
@@ -183,12 +209,15 @@ class ClipboardUi() : BaseComponent() {
             MLog.log("剪贴板内容==>" + data)
             return data;
         }
-        return ""
+        return "失败"
     }
 
     fun installApk(): String {
+        val deviceExec = getDeviceExec()
+        if (StringUtil.isEmpty(deviceExec)) return "失败:没有连接设备"
+
         val apkFile = MyUtil.getResourcesFile("apk/clipper.apk")
-        val exec = MyUtil.exec("adb ${getDeviceExec()} install -r ${apkFile.absoluteFile}")
+        val exec = MyUtil.exec("adb ${deviceExec} install -r ${apkFile.absoluteFile}")
         var str = "完成"
         for (s in exec) {
             str = str + "\n\r" + s;
