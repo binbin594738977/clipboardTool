@@ -20,7 +20,7 @@ class ClipboardUi() : BaseComponent() {
     var jdeviceIdButton = JButton("设备ID: (点击选择)")
 
     //设备id
-     var mDeviceId = ""
+    var mDeviceId = ""
 
     init {
         layout = FlowLayout()
@@ -47,7 +47,7 @@ class ClipboardUi() : BaseComponent() {
         textField.text = "本操作依赖adb操作,需要电脑配置sdk以及环境变量"
         textField.horizontalAlignment = JTextField.CENTER
         descTextPanel.add(textField)
-        //文字<内容>
+        //文字<显示内容的框框>
         val textArea = JTextArea()
         textArea.lineWrap = true
         textArea.setMargin(Insets(5, 5, 5, 5))
@@ -74,7 +74,6 @@ class ClipboardUi() : BaseComponent() {
         btn.addActionListener {
             Main.getThreadQueue().post {
                 textArea.text = installApk()
-                MyDialog.show("正在安装...")
             }
         }
         //按钮<设置剪贴板>
@@ -85,8 +84,7 @@ class ClipboardUi() : BaseComponent() {
         btn.horizontalAlignment = SwingConstants.CENTER
         btn.addActionListener {
             Main.getThreadQueue().post {
-                val result = setClipboard(textArea.getText())
-                MyDialog.show(result)
+                setClipboard(textArea.getText())
             }
         }
         //按钮<得到剪贴板>
@@ -99,7 +97,6 @@ class ClipboardUi() : BaseComponent() {
         btn.addActionListener {
             Main.getThreadQueue().post {
                 textArea.text = getClipboard()
-                MyDialog.show("得到剪贴版")
             }
         }
         verateBox.add(descTextPanel)
@@ -190,18 +187,23 @@ class ClipboardUi() : BaseComponent() {
         }
     }
 
-    fun setClipboard(text: String): String {
+    fun setClipboard(text: String) {
         val deviceExec = getDeviceExec()
-        if (StringUtil.isEmpty(deviceExec)) return "失败:没有连接设备"
+        if (StringUtil.isEmpty(deviceExec)) {
+            MyDialog.show("失败:没有连接设备")
+            return
+        }
         MyUtil.exec("adb ${deviceExec} shell am startservice ca.zgrs.clipper/.ClipboardService")
         MyUtil.exec("adb ${deviceExec} shell am broadcast -a clipper.set -e text '$text'")
-        return "设置成功"
+        MyDialog.show("设置成功")
     }
 
     fun getClipboard(): String {
         val deviceExec = getDeviceExec()
-        if (StringUtil.isEmpty(deviceExec)) return "失败:没有连接设备"
-
+        if (StringUtil.isEmpty(deviceExec)) {
+            MyDialog.show("失败:设备没有连接")
+            return ""
+        }
         MyUtil.exec("adb ${deviceExec} shell am startservice ca.zgrs.clipper/.ClipboardService")
         val execResult = MyUtil.exec("adb ${deviceExec} shell am broadcast -a clipper.get")
         if (execResult != null && execResult.size == 2) {
@@ -213,20 +215,25 @@ class ClipboardUi() : BaseComponent() {
             val data = fromJson.get("data").asString
             //按行打印输出内容
             MLog.log("剪贴板内容==>" + data)
+            MyDialog.show("成功:得到剪贴版")
             return data;
         }
-        return "失败"
+        MyDialog.show("失败:得到剪贴版")
+        return ""
     }
 
     fun installApk(): String {
         val deviceExec = getDeviceExec()
-        if (StringUtil.isEmpty(deviceExec)) return "失败:没有连接设备"
-
+        if (StringUtil.isEmpty(deviceExec)){
+            MyDialog.show("失败:没有连接设备")
+            return ""
+        }
+        MyDialog.show("正在安装...")
         val apkFile = MyUtil.getResourcesFile("apk/clipper.apk")
         val exec = MyUtil.exec("adb ${deviceExec} install -r ${apkFile.absoluteFile}")
         var str = "完成"
         for (s in exec) {
-            str = str + "\n\r" + s;
+            str = str + "\n\r" + s
         }
         return str
     }
