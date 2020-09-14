@@ -1,14 +1,14 @@
-package base
+package code
 
-import core.Config
+import code.core.Config
 import java.awt.Color
 import java.awt.Dimension
 import java.awt.Font
 import javax.swing.*
 
-public abstract class BaseComponent() : JFrame() {
+abstract class BaseComponent : JFrame {
 
-    init {
+    constructor() {
         addMenu()//添加menu//设置
         setting()
     }
@@ -27,10 +27,10 @@ public abstract class BaseComponent() : JFrame() {
      * 添加输入框
      */
     open fun addMyInputUI(
-        component: JComponent,
-        name: String,
-        columns: Int,
-        size: Int
+            component: JComponent,
+            name: String,
+            columns: Int,
+            size: Int
     ): JTextField? { //--微信号组件--
         val p3 = JPanel()
         // 标签
@@ -54,7 +54,7 @@ public abstract class BaseComponent() : JFrame() {
     /**
      * 添加菜单栏
      */
-    open fun addMenu() {
+    fun addMenu() {
         val menubar = JMenuBar() //构造菜单栏
         //第一个菜单
         val menu1 = JMenu("关于")

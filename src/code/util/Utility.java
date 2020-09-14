@@ -1,4 +1,4 @@
-package util;
+package code.util;
 
 import java.io.*;
 import java.lang.ref.Reference;
@@ -10,8 +10,6 @@ import java.net.Socket;
 import java.text.SimpleDateFormat;
 import java.util.Enumeration;
 import java.util.Locale;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.zip.ZipFile;
 /**
  * 常用方法集合

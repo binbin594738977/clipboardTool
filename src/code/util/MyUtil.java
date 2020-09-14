@@ -1,8 +1,8 @@
-package util;
+package code.util;
 
 import com.sun.istack.internal.Nullable;
 
-import core.Config;
+import code.core.Config;
 
 import java.io.*;
 import java.util.ArrayList;

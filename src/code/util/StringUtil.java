@@ -1,4 +1,4 @@
-package util;
+package code.util;
 
 public class StringUtil {
     public static boolean isEmpty(CharSequence str) {

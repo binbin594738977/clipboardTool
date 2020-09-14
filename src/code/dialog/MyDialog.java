@@ -1,11 +1,10 @@
-package dialog;
+package code.dialog;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.Timer;
 import java.util.TimerTask;
 
-import util.MyUtil;
+import code.util.MyUtil;
 
 @SuppressWarnings("serial")
 public class MyDialog extends JWindow {

@@ -1,11 +1,7 @@
+package code;
 
-import java.util.List;
-
-import base.BaseComponent;
-import component.ClipboardUi;
-import util.MLog;
-import util.MyUtil;
-import util.ThreadQueue;
+import code.util.MLog;
+import code.util.ThreadQueue;
 
 public class Main {
 
@@ -22,7 +18,7 @@ public class Main {
             MLog.setLogMod(Integer.parseInt(args[0]));
         }
         threadQueue = ThreadQueue.createAndStart();
-        BaseComponent jFrame = new ClipboardUi();
+        BaseComponent jFrame = new ApkToolUi();
         jFrame.setVisible(true);//设置开始显
     }
 

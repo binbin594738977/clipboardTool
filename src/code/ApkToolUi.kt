@@ -1,27 +1,22 @@
-package component
+package code
 
 
-import Main
-import base.BaseComponent
 import com.google.gson.Gson
 import com.google.gson.JsonObject
-import dialog.MyDialog
-import util.MLog
-import util.MyUtil
-import util.StringUtil
+import code.dialog.MyDialog
+import code.util.MLog
+import code.util.MyUtil
+import code.util.StringUtil
 import java.awt.Dimension
 import java.awt.FlowLayout
 import java.awt.Font
 import java.awt.Insets
 import javax.swing.*
 
-class ClipboardUi() : BaseComponent() {
-    var jdeviceIdButton = JButton("设备ID: (点击选择)")
+class ApkToolUi : BaseComponent {
 
-    //设备id
-    var mDeviceId = ""
 
-    init {
+    constructor() {
         layout = FlowLayout()
         val jpanel = JPanel()
         jpanel.layout = BoxLayout(jpanel, BoxLayout.Y_AXIS)
@@ -29,32 +24,66 @@ class ClipboardUi() : BaseComponent() {
         add(jpanel)
     }
 
+    var jdeviceIdButton = JButton("设备ID: (点击选择)")
+    val contentView = JTextArea()
+
+    //设备id
+    var mDeviceId = ""
+
+    override fun setting() {
+        title = "android手机剪贴板操作"
+        setLocation(200, 30) //设置开始出来的位置
+        setSize(800, 800) //设置窗口大小
+        isResizable = true //设置用户是否可以改变框架大小
+        //jFrame.setIconImage();
+        //设置关闭方式 如果不设置的话 关闭窗口之后不会退出程序
+        defaultCloseOperation = EXIT_ON_CLOSE
+    }
+
+
     fun sehClipboardUI1(): JPanel? {
         val width = this.width - 100
-        val height = 600
+        val height = 700
         val p1 = JPanel()
         p1.preferredSize = Dimension(width, height)
         val verateBox = Box.createVerticalBox()
+        addVerticalBoxChildContainer(verateBox)
         verateBox.preferredSize = Dimension(width, height)
         p1.add(verateBox)
+        return p1
+    }
+
+    /**
+     * 添加竖向盒子子容器
+     */
+    private fun addVerticalBoxChildContainer(verateBox: Box) {
+        addTitleView(verateBox)//添加标题
+        verateBox.add(Box.createVerticalStrut(15));    //添加高度为15的垂直框架
+        addSelectDeviceView(verateBox)//添加横向容器
+        verateBox.add(Box.createVerticalStrut(15));    //添加高度为15的垂直框架
+        addHorizontalBox(verateBox)//添加横向容器
+        verateBox.add(Box.createVerticalStrut(15));    //添加高度为15的垂直框架
+        addContentView(verateBox)//添加内容显示区
+    }
+
+    /**
+     * 标题
+     */
+    private fun addTitleView(verateBox: Box) {
         //文字<使用方式>
         val descTextPanel = JPanel()
         val textField = JTextField()
         textField.setEditable(false)
-        textField.preferredSize = Dimension(width, 100)
+        textField.preferredSize = Dimension(width, 80)
         textField.font = Font("字体", Font.BOLD, 20)
         textField.text = "本操作依赖adb操作,需要电脑配置sdk以及环境变量"
         textField.horizontalAlignment = JTextField.CENTER
         descTextPanel.add(textField)
-        //文字<显示内容的框框>
-        val textArea = JTextArea()
-        textArea.lineWrap = true
-        textArea.setMargin(Insets(5, 5, 5, 5))
-        textArea.preferredSize = Dimension(width, 100)
-        textArea.font = Font("字体", Font.BOLD, 20)
-        //按钮<安装apk>
-        val btnSelectDevice = JPanel()
+        verateBox.add(descTextPanel)
+    }
 
+    private fun addSelectDeviceView(verateBox: Box) {
+        val btnSelectDevice = JPanel()
         var btn = btnSelectDevice.add(jdeviceIdButton) as JButton
         btn.margin = Insets(5, 5, 5, 5)
         btn.font = Font("字体", Font.BOLD, 25)
@@ -64,15 +93,69 @@ class ClipboardUi() : BaseComponent() {
                 selectDeviceId()
             }
         }
+        verateBox.add(btnSelectDevice)
+    }
+
+    /**
+     * 横向容器
+     */
+    private fun addHorizontalBox(verateBox: Box) {
+        val p2 = JPanel()
+        p2.preferredSize = Dimension(width, 250)
+        val horizontalBox = Box.createHorizontalBox()
+        //添加两个竖向容器
+        addVerticalBox1(horizontalBox)
+        addVerticalBox2(horizontalBox)
+        p2.add(horizontalBox)
+        verateBox.add(p2)
+    }
+
+    /**
+     * 文字<显示内容的框框>
+     */
+    private fun addContentView(verateBox: Box) {
+        contentView.lineWrap = true
+        contentView.setMargin(Insets(5, 5, 5, 5))
+        contentView.preferredSize = Dimension(width, 100)
+        contentView.font = Font("字体", Font.BOLD, 20)
+        verateBox.add(contentView)
+    }
+
+    /**
+     * 竖向容器1
+     */
+    private fun addVerticalBox1(horizontalBox: Box) {
+        val p3 = JPanel()
+        p3.preferredSize = Dimension(width / 2, height)
+        val verateBox = Box.createVerticalBox()
+        addVerticalBox1Child(verateBox)
+        p3.add(verateBox)
+        horizontalBox.add(p3)
+    }
+
+
+    /**
+     * 竖向容器2
+     */
+    private fun addVerticalBox2(horizontalBox: Box) {
+        val p3 = JPanel()
+        p3.preferredSize = Dimension(width / 2, height)
+        val verateBox = Box.createVerticalBox()
+        addVerticalBox2Child(verateBox)
+        p3.add(verateBox)
+        horizontalBox.add(p3)
+    }
+
+    private fun addVerticalBox1Child(verateBox: Box) {
         //按钮<安装apk>
         val btnInstallApk = JPanel()
-        btn = btnInstallApk.add(JButton("安装必要apk")) as JButton
+        var btn = btnInstallApk.add(JButton("安装apkTool")) as JButton
         btn.margin = Insets(5, 5, 5, 5)
         btn.font = Font("字体", Font.BOLD, 25)
         btn.horizontalAlignment = SwingConstants.CENTER
         btn.addActionListener {
             Main.getThreadQueue().post {
-                textArea.text = installApk()
+                contentView.text = installApk()
             }
         }
         //按钮<设置剪贴板>
@@ -83,7 +166,7 @@ class ClipboardUi() : BaseComponent() {
         btn.horizontalAlignment = SwingConstants.CENTER
         btn.addActionListener {
             Main.getThreadQueue().post {
-                setClipboard(textArea.getText())
+                setClipboard(contentView.getText())
             }
         }
         //按钮<得到剪贴板>
@@ -95,22 +178,21 @@ class ClipboardUi() : BaseComponent() {
         btn.horizontalAlignment = SwingConstants.CENTER
         btn.addActionListener {
             Main.getThreadQueue().post {
-                textArea.text = getClipboard()
+                contentView.text = getClipboard()
             }
         }
-        verateBox.add(descTextPanel)
-        verateBox.add(Box.createVerticalStrut(15));    //添加高度为15的垂直框架
-        verateBox.add(btnSelectDevice)
-        verateBox.add(Box.createVerticalStrut(15));    //添加高度为15的垂直框架
         verateBox.add(btnInstallApk)
         verateBox.add(Box.createVerticalStrut(15));    //添加高度为15的垂直框架
         verateBox.add(btnSetClipboard)
         verateBox.add(Box.createVerticalStrut(15));    //添加高度为15的垂直框架
         verateBox.add(btnGetClipboard)
-        verateBox.add(Box.createVerticalStrut(15));    //添加高度为15的垂直框架
-        verateBox.add(textArea)
-        return p1
     }
+
+
+    private fun addVerticalBox2Child(verateBox: Box) {
+
+    }
+
 
     /**
      * 选择设备id,只有一个设备不会弹框
@@ -214,16 +296,16 @@ class ClipboardUi() : BaseComponent() {
             val data = fromJson.get("data").asString
             //按行打印输出内容
             MLog.log("剪贴板内容==>" + data)
-            MyDialog.show("成功:得到剪贴版")
+            MyDialog.show("获取成功")
             return data
         }
-        MyDialog.show("失败:得到剪贴版")
+        MyDialog.show("失败")
         return ""
     }
 
     fun installApk(): String {
         val deviceExec = getDeviceExec()
-        if (StringUtil.isEmpty(deviceExec)){
+        if (StringUtil.isEmpty(deviceExec)) {
             MyDialog.show("失败:没有连接设备")
             return ""
         }
@@ -237,13 +319,5 @@ class ClipboardUi() : BaseComponent() {
         return str
     }
 
-    override fun setting() {
-        title = "android手机剪贴板操作"
-        setLocation(200, 30) //设置开始出来的位置
-        setSize(800, 700) //设置窗口大小
-        isResizable = true //设置用户是否可以改变框架大小
-        //jFrame.setIconImage();
-        //设置关闭方式 如果不设置的话 关闭窗口之后不会退出程序
-        defaultCloseOperation = EXIT_ON_CLOSE
-    }
+
 }
