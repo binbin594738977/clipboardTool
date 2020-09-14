@@ -14,8 +14,6 @@ import java.awt.Insets
 import javax.swing.*
 
 class ApkToolUi : BaseComponent {
-
-
     constructor() {
         layout = FlowLayout()
         val jpanel = JPanel()

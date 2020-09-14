@@ -6,6 +6,9 @@ import java.awt.Dimension
 import java.awt.Font
 import javax.swing.*
 
+/**
+ * 基本组件
+ */
 abstract class BaseComponent : JFrame {
 
     constructor() {

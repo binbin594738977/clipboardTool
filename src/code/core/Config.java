@@ -13,13 +13,13 @@ public class Config {
     private static final String PROVIDE_HOST = "";
     private static final String PROVIDE_TEST_HOST = "";
 
-    public static boolean hasTest = false;
+    public static boolean DEBUG = false;
 
     /**
      * 得到机器人协议的host
      */
     public static String getRobotHost() {
-        if (hasTest) {
+        if (DEBUG) {
             return TEST_HOST;
         } else {
             return HOST;
@@ -30,7 +30,7 @@ public class Config {
      * 得到主控设备协议的host
      */
     public static String getDeviceHost() {
-        if (hasTest) {
+        if (DEBUG) {
             return DEVICE_TEST_HOST;
         } else {
             return DEVICE_HOST;
@@ -41,7 +41,7 @@ public class Config {
      * 得到接口协议的host
      */
     public static String getProvideHost() {
-        if (hasTest) {
+        if (DEBUG) {
             return PROVIDE_TEST_HOST;
         } else {
             return PROVIDE_HOST;
