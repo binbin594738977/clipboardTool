@@ -17,7 +17,7 @@ object AndroidToolMain {
 //        apkToolTool.bale(sourceDir, outApkPath)
 
         MLog.log("开始签名")
-        var unsignedApkPath = "/Users/fuheng/IdeaProjects/ApkToolJava/out/kuaiya333.apk"
+        var unsignedApkPath = "/Users/fuheng/IdeaProjects/ApkToolJava/out/x8_1.apk"
         var genSignedApkPath = "/Users/fuheng/IdeaProjects/ApkToolJava/out/signed.apk"
         val keystoreTool = KeystoreTool()
         keystoreTool.signatureApk(unsignedApkPath, genSignedApkPath)
