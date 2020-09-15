@@ -196,17 +196,49 @@ class ApkToolUi : BaseComponent {
         btn.horizontalAlignment = SwingConstants.CENTER
         btn.addActionListener {
             Main.getThreadQueue().post {
-                if (StringUtil.isEmpty(contentView.text) && contentView.text.contains("[apk路径]:")) {
+                if (StringUtil.isEmpty(contentView.text) || !contentView.text.contains("[apk路径]:")) {
                     contentView.text = "[apk路径]:"
                     return@post
                 } else {
                     val str = "[apk路径]:"
                     var index = contentView.text.indexOf(str)
-                    contentView.text.substring(index + str.length).trim()
+                    val apkPath = contentView.text.substring(index + str.length).trim()
+                    MLog.log("apkPath: $apkPath")
+                    installApk(apkPath)
                 }
             }
         }
+
+        val btnShell = JPanel()
+        btn = btnInstallApk.add(JButton("执行adb命令")) as JButton
+        btn.margin = Insets(5, 5, 5, 5)
+        btn.font = Font("字体", Font.BOLD, 25)
+        btn.horizontalAlignment = SwingConstants.CENTER
+        btn.addActionListener {
+            Main.getThreadQueue().post {
+                exShell()
+            }
+        }
         verateBox.add(btnInstallApk)
+        verateBox.add(Box.createVerticalStrut(15));    //添加高度为15的垂直框架
+        verateBox.add(btnShell)
+
+    }
+
+    private fun exShell() {
+        val deviceExec = getDeviceExec()
+        if (StringUtil.isEmpty(deviceExec)) {
+            MyDialog.show("失败:没有连接设备")
+            return
+        }
+        val text = contentView.text.trim()
+        if (!StringUtil.isEmpty(text)) {
+            if (text.startsWith("adb")) {
+                val deviceExec = getDeviceExec()
+                var shell = "adb ${deviceExec} ${text.substring(3)}"
+                MyUtil.exec(shell)
+            }
+        }
     }
 
 
@@ -284,6 +316,19 @@ class ApkToolUi : BaseComponent {
         }
     }
 
+
+    private fun installApk(apkPath: String) {
+        val deviceExec = getDeviceExec()
+        if (StringUtil.isEmpty(deviceExec)) {
+            MyDialog.show("失败:没有连接设备")
+            return
+        }
+        MyUtil.exec("adb ${deviceExec} shell am startservice com.fh.apptool/.ApkToolService")
+        MyUtil.exec("adb ${deviceExec} shell am broadcast -a apktool.install -e text '$apkPath'")
+        MyDialog.show("完成")
+    }
+
+
     fun setClipboard(text: String) {
         val deviceExec = getDeviceExec()
         if (StringUtil.isEmpty(deviceExec)) {
@@ -337,3 +382,4 @@ class ApkToolUi : BaseComponent {
 
 
 }
+
