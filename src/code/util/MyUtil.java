@@ -127,7 +127,7 @@ public class MyUtil {
         //查看当前目录是否存在
         File file = new File(getOutDir().getAbsolutePath() + "/" + sourcesPath);
         if (!file.exists()) {
-            System.out.println("注意:有文件输出在->" + file.getAbsolutePath());
+            System.out.println("文件: " + file.getAbsolutePath() + " 不存在");
             InputStream resourcesInputStream = getResourcesInputStream(sourcesPath);
             //目录不存在就创建
             if (!file.getParentFile().exists()) {

@@ -1,6 +1,7 @@
 package code.dialog;
 
 import javax.swing.*;
+
 import java.awt.*;
 import java.util.TimerTask;
 
@@ -14,6 +15,14 @@ public class MyDialog extends JWindow {
     private static MyDialog dialog;
 
     public static void show(String str) {
+        show(str, 1000);
+    }
+
+    public static void showLong(String str) {
+        show(str, 5000);
+    }
+
+    public static void show(String str, long delay) {
         if (dialog == null) {
             dialog = new MyDialog(str);
         }
@@ -25,7 +34,7 @@ public class MyDialog extends JWindow {
                 dialog.setVisible(false);
                 dialog.dispose();
             }
-        }, 1000);
+        }, delay);
     }
 
     private MyDialog(String str) {

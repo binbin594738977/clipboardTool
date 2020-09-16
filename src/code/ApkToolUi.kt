@@ -187,25 +187,7 @@ class ApkToolUi : BaseComponent {
     }
 //---------------------------------------------------------------------
 
-    /**
-     * 执行adb命令
-     */
-    private fun exADB() {
-        val deviceExec = getDeviceExec()
-        if (StringUtil.isEmpty(deviceExec)) {
-            MyDialog.show("失败:没有连接设备")
-            return
-        }
-        val text = contentView.text.trim()
-        if (!StringUtil.isEmpty(text)) {
-            if (text.startsWith("adb")) {
-                var shell = "adb ${deviceExec} ${text.substring(3)}"
-                MyUtil.exec(shell)
-            }
-        } else {
-            MyDialog.show("没有命令")
-        }
-    }
+
 
 
     /**
@@ -324,24 +306,30 @@ class ApkToolUi : BaseComponent {
     }
 
     fun installApkTool(): String {
-        val deviceExec = getDeviceExec()
-        if (StringUtil.isEmpty(deviceExec)) {
-            MyDialog.show("失败:没有连接设备")
-            return ""
+        var result = ""
+        try {
+            val deviceExec = getDeviceExec()
+            if (StringUtil.isEmpty(deviceExec)) {
+                MyDialog.show("失败:没有连接设备")
+                return ""
+            }
+            MyDialog.show("正在安装...")
+            val apkFilePath = MyUtil.getResourcesFile("apk/apktool.apk").absolutePath
+            val exec = MyUtil.exec("adb ${deviceExec} install -r ${apkFilePath}")
+            result = "完成"
+            for (s in exec) {
+                result = result + "\n\r" + s
+            }
+            if (result.contains("Failure [INSTALL_FAILED_USER_RESTRICTED]")) {
+                MyDialog.showLong("无法用usb直接安装,已经push到sdcard目录,请手动安装...")
+                MyUtil.exec("adb ${deviceExec} push $apkFilePath /sdcard")
+            } else if (result.contains("Success")) {
+                MyDialog.show("安装完成")
+            }
+        } catch (e: Exception) {
+            MLog.log(e)
         }
-        MyDialog.show("正在安装...")
-        val apkFile = MyUtil.getResourcesFile("apk/clipper.apk")
-        val exec = MyUtil.exec("adb ${deviceExec} install -r ${apkFile.absoluteFile}")
-        var str = "完成"
-        for (s in exec) {
-            str = str + "\n\r" + s
-        }
-        if (str.contains("Failure [INSTALL_FAILED_USER_RESTRICTED]")) {
-            MyDialog.show("无法用usb直接安装,请开启usb安装权限或者手动安装...")
-        } else if (str.contains("Success")) {
-            MyDialog.show("安装完成")
-        }
-        return str
+        return result
     }
 
 
@@ -351,11 +339,12 @@ class ApkToolUi : BaseComponent {
             MyDialog.show("失败:没有连接设备")
             return
         }
-        if (StringUtil.isEmpty(contentView.text) || !File(contentView.text).exists()) {
+        val text = contentView.text.trim()
+        if (StringUtil.isEmpty(text) || !File(text).exists()) {
             MyDialog.show("请填写apk路径")
             return
         }
-        val file = File(contentView.text)
+        val file = File(text)
         if (!file.exists()) {
             MyDialog.show("文件路径错误")
             return
@@ -370,6 +359,27 @@ class ApkToolUi : BaseComponent {
         MyDialog.show("push完成,正在安装,请手动确认")
     }
 
+
+    /**
+     * 执行adb命令
+     */
+    private fun exADB() {
+        val deviceExec = getDeviceExec()
+        if (StringUtil.isEmpty(deviceExec)) {
+            MyDialog.show("失败:没有连接设备")
+            return
+        }
+        val text = contentView.text.trim()
+        if (!StringUtil.isEmpty(text)) {
+            if (text.startsWith("adb")) {
+                val shell = "adb ${deviceExec} ${text.substring(3)}"
+                MyUtil.exec(shell)
+                MyDialog.show("成功")
+            }
+        } else {
+            MyDialog.show("没有命令")
+        }
+    }
 
 }
 
