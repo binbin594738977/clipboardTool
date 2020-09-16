@@ -135,6 +135,7 @@ public class MyUtil {
             }
             //将资源导入到目录
             Utility.streamToFile(resourcesInputStream, file);
+            MLog.log("导入完毕,现在文件是否存在: " + file.exists());
         }
         return file;
     }

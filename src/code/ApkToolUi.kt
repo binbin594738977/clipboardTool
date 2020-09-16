@@ -11,6 +11,7 @@ import java.awt.Dimension
 import java.awt.FlowLayout
 import java.awt.Font
 import java.awt.Insets
+import java.awt.SystemColor.text
 import java.awt.event.ActionListener
 import java.io.File
 import javax.swing.*
@@ -148,11 +149,11 @@ class ApkToolUi : BaseComponent {
 
     private fun addVerticalBox1Child(verateBox: Box) {
         //按钮<安装apkTool>
-        val btnInstallApk = getDefualtBtn("安装apkTool", ActionListener { contentView.text = installApkTool() })
+        val btnInstallApk = getDefualtBtn("安装apkTool", ActionListener { installApkTool() })
         //按钮<设置剪贴板>
-        val btnSetClipboard = getDefualtBtn("设置剪贴板内容", ActionListener { setClipboard(contentView.getText()) })
+        val btnSetClipboard = getDefualtBtn("设置剪贴板内容", ActionListener { setClipboard() })
         //按钮<得到剪贴板>
-        val btnGetClipboard = getDefualtBtn("得到剪贴板内容", ActionListener { contentView.text = getClipboard() })
+        val btnGetClipboard = getDefualtBtn("得到剪贴板内容", ActionListener { getClipboard() })
         verateBox.add(btnInstallApk)
         verateBox.add(Box.createVerticalStrut(15));    //添加高度为15的垂直框架
         verateBox.add(btnSetClipboard)
@@ -186,8 +187,6 @@ class ApkToolUi : BaseComponent {
         return btnJPanel
     }
 //---------------------------------------------------------------------
-
-
 
 
     /**
@@ -265,23 +264,24 @@ class ApkToolUi : BaseComponent {
     }
 
 
-    fun setClipboard(text: String) {
+    fun setClipboard() {
         val deviceExec = getDeviceExec()
         if (StringUtil.isEmpty(deviceExec)) {
             MyDialog.show("失败:没有连接设备")
             return
         }
+        val text = contentView.getText()
         MyUtil.exec("adb ${deviceExec} shell am startservice com.fh.apptool/.ApkToolService")
         MyUtil.exec("adb ${deviceExec} shell am broadcast -a clipper.set -e text '$text'")
         MyDialog.show("设置成功")
     }
 
-    fun getClipboard(): String {
+    fun getClipboard() {
         try {
             val deviceExec = getDeviceExec()
             if (StringUtil.isEmpty(deviceExec)) {
                 MyDialog.show("失败:设备没有连接")
-                return ""
+                return
             }
             MyUtil.exec("adb ${deviceExec} shell am startservice com.fh.apptool/.ApkToolService")
             val execResult = MyUtil.exec("adb ${deviceExec} shell am broadcast -a clipper.get")
@@ -290,28 +290,27 @@ class ApkToolUi : BaseComponent {
                 val top = "Broadcast completed: "
                 str = str.substring(top.length)
                 MLog.log("剪贴板原始内容==>" + str)
-
                 val fromJson = Gson().fromJson("{${str}}", JsonObject::class.java)
                 val data = fromJson.get("data").asString
                 //按行打印输出内容
                 MLog.log("剪贴板内容==>" + data)
                 MyDialog.show("获取成功")
-                return data
+                contentView.text = data
+                return
             }
         } catch (e: Exception) {
             MLog.log(e)
         }
         MyDialog.show("失败")
-        return ""
     }
 
-    fun installApkTool(): String {
+    fun installApkTool() {
         var result = ""
         try {
             val deviceExec = getDeviceExec()
             if (StringUtil.isEmpty(deviceExec)) {
                 MyDialog.show("失败:没有连接设备")
-                return ""
+                return
             }
             MyDialog.show("正在安装...")
             val apkFilePath = MyUtil.getResourcesFile("apk/apktool.apk").absolutePath
@@ -329,7 +328,6 @@ class ApkToolUi : BaseComponent {
         } catch (e: Exception) {
             MLog.log(e)
         }
-        return result
     }
 
 
