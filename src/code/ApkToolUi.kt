@@ -210,7 +210,7 @@ class ApkToolUi : BaseComponent {
         }
 
         val btnShell = JPanel()
-        btn = btnInstallApk.add(JButton("执行adb命令")) as JButton
+        btn = btnShell.add(JButton("执行adb命令")) as JButton
         btn.margin = Insets(5, 5, 5, 5)
         btn.font = Font("字体", Font.BOLD, 25)
         btn.horizontalAlignment = SwingConstants.CENTER
