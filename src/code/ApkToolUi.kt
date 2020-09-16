@@ -11,6 +11,8 @@ import java.awt.Dimension
 import java.awt.FlowLayout
 import java.awt.Font
 import java.awt.Insets
+import java.awt.event.ActionListener
+import java.io.File
 import javax.swing.*
 
 class ApkToolUi : BaseComponent {
@@ -146,39 +148,11 @@ class ApkToolUi : BaseComponent {
 
     private fun addVerticalBox1Child(verateBox: Box) {
         //按钮<安装apkTool>
-        val btnInstallApk = JPanel()
-        var btn = btnInstallApk.add(JButton("安装apkTool")) as JButton
-        btn.margin = Insets(5, 5, 5, 5)
-        btn.font = Font("字体", Font.BOLD, 25)
-        btn.horizontalAlignment = SwingConstants.CENTER
-        btn.addActionListener {
-            Main.getThreadQueue().post {
-                contentView.text = installApkTool()
-            }
-        }
+        val btnInstallApk = getDefualtBtn("安装apkTool", ActionListener { contentView.text = installApkTool() })
         //按钮<设置剪贴板>
-        val btnSetClipboard = JPanel()
-        btn = btnSetClipboard.add(JButton("设置剪贴板内容")) as JButton
-        btn.margin = Insets(5, 5, 5, 5)
-        btn.font = Font("字体", Font.BOLD, 25)
-        btn.horizontalAlignment = SwingConstants.CENTER
-        btn.addActionListener {
-            Main.getThreadQueue().post {
-                setClipboard(contentView.getText())
-            }
-        }
+        val btnSetClipboard = getDefualtBtn("设置剪贴板内容", ActionListener { setClipboard(contentView.getText()) })
         //按钮<得到剪贴板>
-        val btnGetClipboard = JPanel()
-        btn = btnGetClipboard.add(JButton("得到剪贴板内容")) as JButton
-//        button.preferredSize = Dimension(width, 200)
-        btn.margin = Insets(5, 5, 5, 5)
-        btn.font = Font("字体", Font.BOLD, 25)
-        btn.horizontalAlignment = SwingConstants.CENTER
-        btn.addActionListener {
-            Main.getThreadQueue().post {
-                contentView.text = getClipboard()
-            }
-        }
+        val btnGetClipboard = getDefualtBtn("得到剪贴板内容", ActionListener { contentView.text = getClipboard() })
         verateBox.add(btnInstallApk)
         verateBox.add(Box.createVerticalStrut(15));    //添加高度为15的垂直框架
         verateBox.add(btnSetClipboard)
@@ -188,42 +162,30 @@ class ApkToolUi : BaseComponent {
 
 
     private fun addVerticalBox2Child(verateBox: Box) {
-        //按钮<安装指定apk>
-        val btnInstallApk = JPanel()
-        var btn = btnInstallApk.add(JButton("安装自定义apk")) as JButton
-        btn.margin = Insets(5, 5, 5, 5)
-        btn.font = Font("字体", Font.BOLD, 25)
-        btn.horizontalAlignment = SwingConstants.CENTER
-        btn.addActionListener {
-            Main.getThreadQueue().post {
-                if (StringUtil.isEmpty(contentView.text) || !contentView.text.contains("[apk路径]:")) {
-                    contentView.text = "[apk路径]:"
-                    return@post
-                } else {
-                    val str = "[apk路径]:"
-                    var index = contentView.text.indexOf(str)
-                    val apkPath = contentView.text.substring(index + str.length).trim()
-                    MLog.log("apkPath: $apkPath")
-                    installApk(apkPath)
-                }
-            }
-        }
-
-        val btnShell = JPanel()
-        btn = btnShell.add(JButton("执行adb命令")) as JButton
-        btn.margin = Insets(5, 5, 5, 5)
-        btn.font = Font("字体", Font.BOLD, 25)
-        btn.horizontalAlignment = SwingConstants.CENTER
-        btn.addActionListener {
-            Main.getThreadQueue().post {
-                exShell()
-            }
-        }
+//        //按钮<安装指定apk>
+        val btnInstallApk = getDefualtBtn("安装自定义apk", ActionListener { installApk() })
+        //按钮<执行shell命令>
+        val btnShell = getDefualtBtn("执行adb命令", ActionListener { exShell() })
         verateBox.add(btnInstallApk)
         verateBox.add(Box.createVerticalStrut(15));    //添加高度为15的垂直框架
         verateBox.add(btnShell)
 
     }
+
+    fun getDefualtBtn(text: String, l: ActionListener): JPanel {
+        val btnJPanel = JPanel()
+        val btn = btnJPanel.add(JButton(text)) as JButton
+        btn.margin = Insets(5, 5, 5, 5)
+        btn.font = Font("字体", Font.BOLD, 25)
+        btn.horizontalAlignment = SwingConstants.CENTER
+        btn.addActionListener({
+            Main.getThreadQueue().post {
+                l.actionPerformed(it)
+            }
+        })
+        return btnJPanel
+    }
+//---------------------------------------------------------------------
 
     private fun exShell() {
         val deviceExec = getDeviceExec()
@@ -238,6 +200,8 @@ class ApkToolUi : BaseComponent {
                 var shell = "adb ${deviceExec} ${text.substring(3)}"
                 MyUtil.exec(shell)
             }
+        } else {
+            MyDialog.show("没有命令")
         }
     }
 
@@ -317,18 +281,6 @@ class ApkToolUi : BaseComponent {
     }
 
 
-    private fun installApk(apkPath: String) {
-        val deviceExec = getDeviceExec()
-        if (StringUtil.isEmpty(deviceExec)) {
-            MyDialog.show("失败:没有连接设备")
-            return
-        }
-        MyUtil.exec("adb ${deviceExec} shell am startservice com.fh.apptool/.ApkToolService")
-        MyUtil.exec("adb ${deviceExec} shell am broadcast -a apktool.install -e text '$apkPath'")
-        MyDialog.show("完成")
-    }
-
-
     fun setClipboard(text: String) {
         val deviceExec = getDeviceExec()
         if (StringUtil.isEmpty(deviceExec)) {
@@ -341,24 +293,29 @@ class ApkToolUi : BaseComponent {
     }
 
     fun getClipboard(): String {
-        val deviceExec = getDeviceExec()
-        if (StringUtil.isEmpty(deviceExec)) {
-            MyDialog.show("失败:设备没有连接")
-            return ""
-        }
-        MyUtil.exec("adb ${deviceExec} shell am startservice com.fh.apptool/.ApkToolService")
-        val execResult = MyUtil.exec("adb ${deviceExec} shell am broadcast -a clipper.get")
-        if (execResult != null && execResult.size == 2) {
-            var str = execResult.get(1)
-            val top = "Broadcast completed: "
-            str = str.substring(top.length)
-            MLog.log("剪贴板内容11==>" + str)
-            val fromJson = Gson().fromJson("{${str}}", JsonObject::class.java)
-            val data = fromJson.get("data").asString
-            //按行打印输出内容
-            MLog.log("剪贴板内容==>" + data)
-            MyDialog.show("获取成功")
-            return data
+        try {
+            val deviceExec = getDeviceExec()
+            if (StringUtil.isEmpty(deviceExec)) {
+                MyDialog.show("失败:设备没有连接")
+                return ""
+            }
+            MyUtil.exec("adb ${deviceExec} shell am startservice com.fh.apptool/.ApkToolService")
+            val execResult = MyUtil.exec("adb ${deviceExec} shell am broadcast -a clipper.get")
+            if (execResult != null && execResult.size == 2) {
+                var str = execResult.get(1)
+                val top = "Broadcast completed: "
+                str = str.substring(top.length)
+                MLog.log("剪贴板原始内容==>" + str)
+
+                val fromJson = Gson().fromJson("{${str}}", JsonObject::class.java)
+                val data = fromJson.get("data").asString
+                //按行打印输出内容
+                MLog.log("剪贴板内容==>" + data)
+                MyDialog.show("获取成功")
+                return data
+            }
+        } catch (e: Exception) {
+            MLog.log(e)
         }
         MyDialog.show("失败")
         return ""
@@ -377,7 +334,37 @@ class ApkToolUi : BaseComponent {
         for (s in exec) {
             str = str + "\n\r" + s
         }
+        if (str.contains("Failure [INSTALL_FAILED_USER_RESTRICTED]")) {
+            MyDialog.show("无法用usb直接安装,请开启usb安装权限或者手动安装...")
+        } else if (str.contains("Success")) {
+            MyDialog.show("安装完成")
+        }
         return str
+    }
+
+
+    private fun installApk() {
+        val deviceExec = getDeviceExec()
+        if (StringUtil.isEmpty(deviceExec)) {
+            MyDialog.show("失败:没有连接设备")
+            return
+        }
+        if (StringUtil.isEmpty(contentView.text) || !File(contentView.text).exists()) {
+            MyDialog.show("请填写apk路径")
+            return
+        }
+        val file = File(contentView.text)
+        if (!file.exists()) {
+            MyDialog.show("文件路径错误")
+            return
+        }
+        val apkPath = file.absolutePath
+        MLog.log("apkPath: $apkPath")
+        MyDialog.show("正在push")
+        MyUtil.exec("adb ${deviceExec} push $apkPath /sdcard")
+        MyUtil.exec("adb ${deviceExec} shell am startservice com.fh.apptool/.ApkToolService")
+        MyUtil.exec("adb ${deviceExec} shell am broadcast -a apktool.install -e text '/sdcard/${file.name}'")
+        MyDialog.show("push完成,正在安装,请手动确认")
     }
 
 

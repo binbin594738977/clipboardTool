@@ -16,7 +16,7 @@ public class MyUtil {
     }
 
     public static List<String> exec(String str) {
-        MLog.log("-----------------------------------开始命令");
+        MLog.log("----------------------------------------------------------------------开始命令");
         MLog.log("命令: " + str);
         List<String> arr = new ArrayList<>();
         InputStreamReader ir = null;
@@ -34,7 +34,7 @@ public class MyUtil {
                 MLog.log(line);
                 arr.add(new String(line.getBytes(), "UTF-8"));
             }
-            MLog.log("-----------------------------------结果end");
+            MLog.log("----------------------------------------------------------------------结果end");
         } catch (IOException e1) {
             MLog.log(e1);
         } finally {
