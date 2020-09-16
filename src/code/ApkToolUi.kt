@@ -165,7 +165,7 @@ class ApkToolUi : BaseComponent {
 //        //按钮<安装指定apk>
         val btnInstallApk = getDefualtBtn("安装自定义apk", ActionListener { installApk() })
         //按钮<执行shell命令>
-        val btnShell = getDefualtBtn("执行adb命令", ActionListener { exShell() })
+        val btnShell = getDefualtBtn("执行adb命令", ActionListener { exADB() })
         verateBox.add(btnInstallApk)
         verateBox.add(Box.createVerticalStrut(15));    //添加高度为15的垂直框架
         verateBox.add(btnShell)
@@ -187,7 +187,10 @@ class ApkToolUi : BaseComponent {
     }
 //---------------------------------------------------------------------
 
-    private fun exShell() {
+    /**
+     * 执行adb命令
+     */
+    private fun exADB() {
         val deviceExec = getDeviceExec()
         if (StringUtil.isEmpty(deviceExec)) {
             MyDialog.show("失败:没有连接设备")
@@ -196,7 +199,6 @@ class ApkToolUi : BaseComponent {
         val text = contentView.text.trim()
         if (!StringUtil.isEmpty(text)) {
             if (text.startsWith("adb")) {
-                val deviceExec = getDeviceExec()
                 var shell = "adb ${deviceExec} ${text.substring(3)}"
                 MyUtil.exec(shell)
             }
@@ -361,6 +363,7 @@ class ApkToolUi : BaseComponent {
         val apkPath = file.absolutePath
         MLog.log("apkPath: $apkPath")
         MyDialog.show("正在push")
+        MyUtil.exec("adb ${deviceExec} shell am start -n com.fh.apptool/.MainActivity")
         MyUtil.exec("adb ${deviceExec} push $apkPath /sdcard")
         MyUtil.exec("adb ${deviceExec} shell am startservice com.fh.apptool/.ApkToolService")
         MyUtil.exec("adb ${deviceExec} shell am broadcast -a apktool.install -e text '/sdcard/${file.name}'")
