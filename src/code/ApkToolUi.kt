@@ -1,28 +1,27 @@
 package code
 
 
-import com.google.gson.Gson
-import com.google.gson.JsonObject
 import code.dialog.MyDialog
 import code.util.MLog
 import code.util.MyUtil
 import code.util.StringUtil
+import com.google.gson.Gson
+import com.google.gson.JsonObject
 import java.awt.Dimension
-import java.awt.FlowLayout
 import java.awt.Font
 import java.awt.Insets
-import java.awt.SystemColor.text
+import java.awt.datatransfer.DataFlavor
+import java.awt.datatransfer.Transferable
+import java.awt.datatransfer.UnsupportedFlavorException
 import java.awt.event.ActionListener
 import java.io.File
+import java.io.IOException
 import javax.swing.*
 
 class ApkToolUi : BaseComponent {
     constructor() {
-        layout = FlowLayout()
-        val jpanel = JPanel()
-        jpanel.layout = BoxLayout(jpanel, BoxLayout.Y_AXIS)
-        jpanel.add(sehClipboardUI1())
-        add(jpanel)
+        getContentPane().add(MainUi())
+
     }
 
     var jdeviceIdButton = JButton("设备ID: (点击选择)")
@@ -42,7 +41,7 @@ class ApkToolUi : BaseComponent {
     }
 
 
-    fun sehClipboardUI1(): JPanel? {
+    fun MainUi(): JPanel? {
         val width = this.width - 100
         val height = 700
         val p1 = JPanel()
@@ -119,6 +118,31 @@ class ApkToolUi : BaseComponent {
         contentView.setMargin(Insets(5, 5, 5, 5))
         contentView.preferredSize = Dimension(width, 100)
         contentView.font = Font("字体", Font.BOLD, 20)
+        contentView.dragEnabled = true
+        contentView.transferHandler = object : TransferHandler() {
+            override fun importData(c: JComponent, t: Transferable): Boolean {
+                try {
+                    val fileListPath = t.getTransferData(DataFlavor.javaFileListFlavor) as List<*>
+                    //此处输出的文件/文件夹的名字以及路径
+                    println("文件名: $fileListPath")
+                    contentView.text = fileListPath[0].toString()
+                    return true
+                } catch (e: UnsupportedFlavorException) {
+                    MLog.log(e)
+                    return true
+                } catch (e: IOException) {
+                    MLog.log(e)
+                } catch (e: Exception) {
+                    MLog.log(e)
+                }
+                return false
+            }
+
+            override fun canImport(c: JComponent, flavors: Array<DataFlavor>): Boolean {
+                return true
+            }
+        }
+
         verateBox.add(contentView)
     }
 

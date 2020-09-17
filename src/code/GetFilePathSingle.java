@@ -48,9 +48,9 @@ public class GetFilePathSingle {
 
     public static void main(String[] args) {
         final JFrame jf = new JFrame(" by wpskl ");
-        jf.setVisible(true);
         jf.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         jf.getContentPane().add(new GetFilePathSingle().getPanel());
         jf.setSize(300, 400);
+        jf.setVisible(true);
     }
 }
