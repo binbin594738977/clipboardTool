@@ -149,7 +149,7 @@ public class Intent {
     }
 
 
-    public Intent putString(String key, String value) {
+    public Intent putExtras(String key, String value) {
         mExtras.put(key, value);
         return this;
     }

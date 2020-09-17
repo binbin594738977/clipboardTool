@@ -299,7 +299,7 @@ class ApkToolUi : BaseComponent {
 
         val text = contentView.getText()
         MyAdbUtil.startApkToolService()
-        MyAdbUtil.sendBroadcast(Intent("clipper.set").putString("text", text))
+        MyAdbUtil.sendBroadcast(Intent("clipper.set").putExtras("text", text))
         MyDialog.show("设置成功")
     }
 
@@ -384,7 +384,7 @@ class ApkToolUi : BaseComponent {
         MyAdbUtil.startActivity(Intent(MyAdbUtil.APP_TOOL_PACKAGE, ".MainActivity"))
         MyAdbUtil.push(apkPath)
         MyAdbUtil.startService(Intent(MyAdbUtil.APP_TOOL_PACKAGE, ".ApkToolService"))
-        MyAdbUtil.sendBroadcast(Intent("apktool.install").putString("text", "${MyAdbUtil.APP_TOOL_DIR}/${file.name}"))
+        MyAdbUtil.sendBroadcast(Intent("apktool.install").putExtras("text", "${MyAdbUtil.APP_TOOL_DIR}/${file.name}"))
         MyDialog.show("push完成,正在安装,请手动确认")
     }
 
