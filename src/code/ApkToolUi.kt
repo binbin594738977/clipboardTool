@@ -1,6 +1,8 @@
 package code
 
 
+import code.adb.AdbUtil
+import code.adb.Intent
 import code.dialog.MyDialog
 import code.util.MLog
 import code.util.MyUtil
@@ -31,7 +33,7 @@ class ApkToolUi : BaseComponent {
     var mDeviceId = ""
 
     override fun setting() {
-        title = "android手机剪贴板操作"
+        title = "android工具"
         setLocation(200, 30) //设置开始出来的位置
         setSize(800, 800) //设置窗口大小
         isResizable = true //设置用户是否可以改变框架大小
@@ -374,6 +376,7 @@ class ApkToolUi : BaseComponent {
         val apkPath = file.absolutePath
         MLog.log("apkPath: $apkPath")
         MyDialog.show("正在push")
+//        AdbUtil.startActivity(Intent(AdbUtil.APP_TOOL_PACKAGE,".MainActivity"))
         MyUtil.exec("adb ${deviceExec} shell am start -n com.fh.apptool/.MainActivity")
         MyUtil.exec("adb ${deviceExec} push $apkPath /sdcard")
         MyUtil.exec("adb ${deviceExec} shell am startservice com.fh.apptool/.ApkToolService")
