@@ -9,11 +9,14 @@ public class Intent {
     private String mAction;//-a
     private String mData;//-d
     private String mType;//-t
+    /**
+     * -n mPackageName/mClassName
+     */
     private String mPackageName;
     private String mClassName;
     private int mFlags;//-f
     private HashSet<String> mCategories;//-c
-    private HashMap mExtras;
+    private HashMap<String, Object> mExtras = new HashMap<>();
     private Intent mSelector;
 
     public Intent(String action) {
@@ -25,35 +28,40 @@ public class Intent {
         mClassName = aClassName;
     }
 
-
-    public String getExecString() {
-        StringBuilder sb = new StringBuilder();
+    public void builder(ExecStringBuilder se) {
+        if (se == null) return;
         //设置: Action 或者 packageName,ClassName
         if (!StringUtil.isEmpty(mAction)) {
-            sb.append("-a ");
-            sb.append(mAction);
-            sb.append(" ");
+            se.append("-a", mAction);
         } else if (!StringUtil.isEmpty(mPackageName) && !StringUtil.isEmpty(mClassName)) {
-            sb.append("-m ");
-            sb.append(mPackageName);
-            sb.append(" / ");
-            sb.append(mClassName);
-            sb.append(" ");
+            se.append("-n", mPackageName.concat("/").concat(mClassName));
         } else {
             throw new RuntimeException("");
         }
-        //---------设置参数---------
+        //---------设置指定类型参数---------
         if (!StringUtil.isEmpty(mData)) {
-            sb.append("-d ");
-            sb.append(mData);
-            sb.append(" ");
+            se.append("-d", mData);
         }
         if (!StringUtil.isEmpty(mType)) {
-            sb.append("-t ");
-            sb.append(mType);
-            sb.append(" ");
+            se.append("-t", mType);
         }
-        return sb.toString();
+        //---
+        if (mExtras.size() > 0) {
+            for (Map.Entry<String, Object> entry : mExtras.entrySet()) {
+                addExtrasToExec(se, entry);
+            }
+        }
+        return;
+    }
+
+    public void addExtrasToExec(ExecStringBuilder se, Map.Entry<String, Object> entry) {
+        if (se == null) return;
+        if (entry == null) return;
+
+        Object value = entry.getValue();
+        if (value instanceof String) {
+            se.append("-e", entry.getKey(), entry.getValue().toString());
+        }
     }
 
     public Intent setAction(String action) {
@@ -141,4 +149,8 @@ public class Intent {
     }
 
 
+    public Intent putString(String key, String value) {
+        mExtras.put(key, value);
+        return this;
+    }
 }

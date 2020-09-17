@@ -45,18 +45,48 @@ public class AdbManager {
         return new PushExec().push(filePath, outPath).exec();
     }
 
+    public List<String> install(String filePath) {
+        return new InstallExec().install(filePath).exec();
+    }
+
+
     interface AdbInterfeice {
         List<String> exec();
     }
 
-    class PushExec implements AdbInterfeice {
-        String mExec;
+    class InstallExec extends ExecStringBuilder implements AdbInterfeice {
+        String mFilePath;
+
+        public InstallExec() {
+            super("install");
+        }
+
+        public InstallExec install(String filePath) {
+            mFilePath = filePath;
+            append("-r").append(filePath);
+            return this;
+        }
+
+        /**
+         * 执行
+         */
+        public List<String> exec() {
+            return adbExec(toString());
+        }
+    }
+
+    class PushExec extends ExecStringBuilder implements AdbInterfeice {
         String mFilePath;
         String mOutPath;
+
+        public PushExec() {
+            super("push");
+        }
 
         public PushExec push(String filePath, String outPath) {
             mFilePath = filePath;
             mOutPath = outPath;
+            append(filePath).append(outPath);
             return this;
         }
 
@@ -64,27 +94,32 @@ public class AdbManager {
          * 执行
          */
         public List<String> exec() {
-            return adbExec(mExec + " " + mFilePath + " " + mOutPath);
+            return adbExec(toString());
         }
     }
 
-    class ActivityManagerExec implements AdbInterfeice {
-        String mExec;
+    class ActivityManagerExec extends ExecStringBuilder implements AdbInterfeice {
         Intent mIntent;
 
+        public ActivityManagerExec() {
+            super("shell am");
+        }
+
         public ActivityManagerExec startActivity(Intent intent) {
-            mExec = "am start ";
             mIntent = intent;
+            append("start").append(intent);
             return this;
         }
 
         public ActivityManagerExec startService(Intent intent) {
-            mExec = "am startservice ";
+            mIntent = intent;
+            append("startservice").append(intent);
             return this;
         }
 
         public ActivityManagerExec sendBroadcast(Intent intent) {
-            mExec = "am broadcast ";
+            mIntent = intent;
+            append("broadcast").append(intent);
             return this;
         }
 
@@ -92,7 +127,7 @@ public class AdbManager {
          * 执行
          */
         public List<String> exec() {
-            return adbExec(mExec + mIntent.getExecString());
+            return adbExec(toString());
         }
     }
 }
