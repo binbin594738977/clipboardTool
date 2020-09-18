@@ -61,10 +61,10 @@ abstract class BaseComponent : JFrame {
         val menubar = JMenuBar() //构造菜单栏
         //第一个菜单
         val menu1 = JMenu("关于")
-        val item1_1 = JMenuItem("作者：fuheng")
+        val item1_1 = JMenuItem("作者：${Config.AUTHOR}")
         menu1.add(item1_1)
         menu1.addSeparator()
-        val item1_2 = JMenuItem("版本：" + Config.VERSION)
+        val item1_2 = JMenuItem("版本：${Config.VERSION}")
         menu1.add(item1_2)
         menubar.add(menu1)
         jMenuBar = menubar //设置菜单栏

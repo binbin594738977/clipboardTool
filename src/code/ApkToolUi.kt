@@ -3,6 +3,7 @@ package code
 
 import code.util.MyAdbUtil
 import code.adb.Intent
+import code.core.Config
 import code.dialog.MyDialog
 import code.util.MLog
 import code.util.MyUtil
@@ -33,7 +34,7 @@ class ApkToolUi : BaseComponent {
     var mDeviceId = ""
 
     override fun setting() {
-        title = "android工具"
+        title = Config.PROJECT_NAME
         setLocation(200, 30) //设置开始出来的位置
         setSize(800, 800) //设置窗口大小
         isResizable = true //设置用户是否可以改变框架大小
@@ -340,7 +341,7 @@ class ApkToolUi : BaseComponent {
             }
 
             MyDialog.show("正在安装...")
-            val apkFilePath = MyUtil.getResourcesFile("apk/apktool.apk").absolutePath
+            val apkFilePath = MyUtil.getResourcesFile(Config.APP_TOOL_SRC_PATH).absolutePath
             if (!File(apkFilePath).exists()) {
                 MyDialog.show("文件不存在...")
                 return
@@ -353,7 +354,7 @@ class ApkToolUi : BaseComponent {
             if (result.contains("Failure [INSTALL_FAILED_USER_RESTRICTED]")) {
                 MyDialog.showLong("无法用usb直接安装,已经push到sdcard目录,请手动安装...")
                 MyAdbUtil.push(apkFilePath)
-                MyAdbUtil.installApk("${MyAdbUtil.APP_TOOL_DIR}/${File(apkFilePath).name}")
+                MyAdbUtil.installApk("${Config.APP_TOOL_ANDROID_DIR}/${File(apkFilePath).name}")
             } else if (result.contains("Success")) {
                 MyDialog.show("安装完成")
             }
@@ -382,10 +383,10 @@ class ApkToolUi : BaseComponent {
         val apkPath = file.absolutePath
         MLog.log("apkPath: $apkPath")
         MyDialog.show("正在push")
-        MyAdbUtil.startActivity(Intent(MyAdbUtil.APP_TOOL_PACKAGE, ".MainActivity"))
+        MyAdbUtil.startActivity(Intent(Config.APP_TOOL_ANDROID_PACKAGE, ".MainActivity"))
         MyAdbUtil.push(apkPath)
-        MyAdbUtil.startService(Intent(MyAdbUtil.APP_TOOL_PACKAGE, ".ApkToolService"))
-        MyAdbUtil.sendBroadcast(Intent("apktool.install").putExtras("text", "${MyAdbUtil.APP_TOOL_DIR}/${file.name}"))
+        MyAdbUtil.startService(Intent(Config.APP_TOOL_ANDROID_PACKAGE, ".ApkToolService"))
+        MyAdbUtil.sendBroadcast(Intent("apktool.install").putExtras("text", "${Config.APP_TOOL_ANDROID_DIR}/${file.name}"))
         MyDialog.show("push完成,正在安装,请手动确认")
     }
 

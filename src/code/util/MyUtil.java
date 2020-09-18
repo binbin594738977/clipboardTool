@@ -2,13 +2,13 @@ package code.util;
 
 import com.sun.istack.internal.Nullable;
 
-import code.core.Config;
-
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
+
+import code.core.Config;
 
 public class MyUtil {
     public static boolean isEmpty(@Nullable CharSequence str) {
@@ -114,7 +114,7 @@ public class MyUtil {
      * 得到输出目录
      */
     public static File getOutDir() {
-        return new File(MyEnvironment.getUserHome() + "/" + Config.NAME);
+        return new File(MyEnvironment.getUserHome() + "/" + Config.OUT_DIR);
     }
 
     /**

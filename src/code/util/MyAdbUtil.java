@@ -1,24 +1,20 @@
 package code.util;
 
-import org.omg.CORBA.PUBLIC_MEMBER;
-
-import java.io.File;
 import java.util.List;
 
 import code.adb.AdbManager;
 import code.adb.AndroidUri;
 import code.adb.Intent;
-import code.util.MyUtil;
+import code.core.Config;
 
 public class MyAdbUtil {
     public static final String APP_INSTALL_MIMETYPE = "application/vnd.android.package-archive";
     public static final String APP_STREAM_MIMETYPE = "application/octet-stream";
-    public static final String APP_TOOL_DIR = "/sdcard";
-    public static final String APP_TOOL_PACKAGE = "com.fh.apptool";
+
     public static AdbManager adbManager = new AdbManager();
 
     public static void main(String[] args) {
-        installApk("/sdcard/hefeixin_4.0_release.apk");
+        startActivity(new Intent("com.android.settings",".SubSettings"));
     }
 
     public static void setDeviceId(String deviceId) {
@@ -38,7 +34,7 @@ public class MyAdbUtil {
     }
 
     public static List<String> push(String filePath) {
-        return adbManager.push(filePath, APP_TOOL_DIR );
+        return adbManager.push(filePath, Config.APP_TOOL_ANDROID_DIR );
     }
 
     public static List<String> install(String filePath) {
@@ -46,7 +42,7 @@ public class MyAdbUtil {
     }
 
     public static List<String> startApkToolService() {
-        return startService(new Intent(APP_TOOL_PACKAGE, ".ApkToolService"));
+        return startService(new Intent(Config.APP_TOOL_ANDROID_PACKAGE, ".ApkToolService"));
     }
 
     /**
