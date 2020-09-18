@@ -42,7 +42,7 @@ public class MyAdbUtil {
     }
 
     public static List<String> startApkToolService() {
-        return startService(new Intent(Config.APP_TOOL_ANDROID_PACKAGE, ".ApkToolService"));
+        return startService(new Intent(Config.APP_TOOL_ANDROID_PACKAGE, ".AppToolService"));
     }
 
     /**

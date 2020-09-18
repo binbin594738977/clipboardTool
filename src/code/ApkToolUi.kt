@@ -385,7 +385,7 @@ class ApkToolUi : BaseComponent {
         MyDialog.show("正在push")
         MyAdbUtil.startActivity(Intent(Config.APP_TOOL_ANDROID_PACKAGE, ".MainActivity"))
         MyAdbUtil.push(apkPath)
-        MyAdbUtil.startService(Intent(Config.APP_TOOL_ANDROID_PACKAGE, ".ApkToolService"))
+        MyAdbUtil.startApkToolService()
         MyAdbUtil.sendBroadcast(Intent("apktool.install").putExtras("text", "${Config.APP_TOOL_ANDROID_DIR}/${file.name}"))
         MyDialog.show("push完成,正在安装,请手动确认")
     }
