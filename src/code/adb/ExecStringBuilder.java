@@ -50,4 +50,11 @@ public class ExecStringBuilder {
     public String toString() {
         return builder.toString();
     }
+
+    /**
+     * 得到要执行的指令
+     */
+    public String getExecString() {
+        return toString();
+    }
 }

@@ -14,7 +14,7 @@ public class MyAdbUtil {
     public static AdbManager adbManager = new AdbManager();
 
     public static void main(String[] args) {
-        startActivity(new Intent("com.android.settings",".SubSettings"));
+        startActivity(new Intent(Config.APP_TOOL_ANDROID_PACKAGE,".MainActivity"));
     }
 
     public static void setDeviceId(String deviceId) {

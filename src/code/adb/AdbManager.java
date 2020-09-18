@@ -2,6 +2,9 @@ package code.adb;
 
 import java.util.List;
 
+import code.adb.exec.ActivityManagerExec;
+import code.adb.exec.InstallExec;
+import code.adb.exec.PushExec;
 import code.util.MyUtil;
 import code.util.StringUtil;
 
@@ -30,104 +33,22 @@ public class AdbManager {
     }
 
     public List<String> startActivity(Intent intent) {
-        return new ActivityManagerExec().startActivity(intent).exec();
+        return adbExec(new ActivityManagerExec().startActivity(intent).getExecString());
     }
 
     public List<String> startService(Intent intent) {
-        return new ActivityManagerExec().startService(intent).exec();
+        return adbExec(new ActivityManagerExec().startService(intent).getExecString());
     }
 
     public List<String> sendBroadcast(Intent intent) {
-        return new ActivityManagerExec().sendBroadcast(intent).exec();
+        return adbExec(new ActivityManagerExec().sendBroadcast(intent).getExecString());
     }
 
     public List<String> push(String filePath, String outPath) {
-        return new PushExec().push(filePath, outPath).exec();
+        return adbExec(new PushExec().push(filePath, outPath).getExecString());
     }
 
     public List<String> install(String filePath) {
-        return new InstallExec().install(filePath).exec();
-    }
-
-
-    interface AdbInterfeice {
-        List<String> exec();
-    }
-
-    class InstallExec extends ExecStringBuilder implements AdbInterfeice {
-        String mFilePath;
-
-        public InstallExec() {
-            super("install");
-        }
-
-        public InstallExec install(String filePath) {
-            mFilePath = filePath;
-            append("-r").append(filePath);
-            return this;
-        }
-
-        /**
-         * 执行
-         */
-        public List<String> exec() {
-            return adbExec(toString());
-        }
-    }
-
-    class PushExec extends ExecStringBuilder implements AdbInterfeice {
-        String mFilePath;
-        String mOutPath;
-
-        public PushExec() {
-            super("push");
-        }
-
-        public PushExec push(String filePath, String outPath) {
-            mFilePath = filePath;
-            mOutPath = outPath;
-            append(filePath).append(outPath);
-            return this;
-        }
-
-        /**
-         * 执行
-         */
-        public List<String> exec() {
-            return adbExec(toString());
-        }
-    }
-
-    class ActivityManagerExec extends ExecStringBuilder implements AdbInterfeice {
-        Intent mIntent;
-
-        public ActivityManagerExec() {
-            super("shell am");
-        }
-
-        public ActivityManagerExec startActivity(Intent intent) {
-            mIntent = intent;
-            append("start").append(intent);
-            return this;
-        }
-
-        public ActivityManagerExec startService(Intent intent) {
-            mIntent = intent;
-            append("startservice").append(intent);
-            return this;
-        }
-
-        public ActivityManagerExec sendBroadcast(Intent intent) {
-            mIntent = intent;
-            append("broadcast").append(intent);
-            return this;
-        }
-
-        /**
-         * 执行
-         */
-        public List<String> exec() {
-            return adbExec(toString());
-        }
+        return adbExec(new InstallExec().install(filePath).getExecString());
     }
 }
