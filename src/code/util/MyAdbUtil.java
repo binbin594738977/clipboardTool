@@ -38,7 +38,7 @@ public class MyAdbUtil {
     }
 
     public static List<String> push(String filePath) {
-        return adbManager.push(filePath, APP_TOOL_DIR);
+        return adbManager.push(filePath, APP_TOOL_DIR );
     }
 
     public static List<String> install(String filePath) {

@@ -353,6 +353,7 @@ class ApkToolUi : BaseComponent {
             if (result.contains("Failure [INSTALL_FAILED_USER_RESTRICTED]")) {
                 MyDialog.showLong("无法用usb直接安装,已经push到sdcard目录,请手动安装...")
                 MyAdbUtil.push(apkFilePath)
+                MyAdbUtil.installApk("${MyAdbUtil.APP_TOOL_DIR}/${File(apkFilePath).name}")
             } else if (result.contains("Success")) {
                 MyDialog.show("安装完成")
             }
