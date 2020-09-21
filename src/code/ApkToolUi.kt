@@ -190,11 +190,13 @@ class ApkToolUi : BaseComponent {
 
 
     private fun addVerticalBox2Child(verateBox: Box) {
-//        //按钮<安装指定apk>
-        val btnInstallApk = getDefualtBtn("安装自定义apk", ActionListener { installApk() })
+//        //按钮<系统安装器安装apk>
+        val btnSystemInstallApk = getDefualtBtn("系统安装器安装apk", ActionListener { systemInstallApk() })
+        //按钮<Apptool安装apk>
+        val btnApptoolInstallApk = getDefualtBtn("Apptool安装apk", ActionListener { apptoolInstallApk() })
         //按钮<执行shell命令>
         val btnShell = getDefualtBtn("执行adb命令", ActionListener { exADB() })
-        verateBox.add(btnInstallApk)
+        verateBox.add(btnSystemInstallApk)
         verateBox.add(Box.createVerticalStrut(15));    //添加高度为15的垂直框架
         verateBox.add(btnShell)
 
@@ -363,7 +365,7 @@ class ApkToolUi : BaseComponent {
     }
 
 
-    private fun installApk() {
+    private fun systemInstallApk() {
         if (!checkDeviceConnection()) {
             MyDialog.show("失败:设备没有连接")
             return
@@ -384,6 +386,31 @@ class ApkToolUi : BaseComponent {
         MyDialog.show("正在push")
         MyAdbUtil.push(apkPath)
         MyAdbUtil.installApk("${Config.APP_TOOL_ANDROID_DIR}/${file.name}")
+        MyDialog.show("push完成,正在安装,请手动确认")
+    }
+
+    private fun apptoolInstallApk() {
+        if (!checkDeviceConnection()) {
+            MyDialog.show("失败:设备没有连接")
+            return
+        }
+
+        val text = contentView.text.trim()
+        if (StringUtil.isEmpty(text) || !File(text).exists()) {
+            MyDialog.show("请填写apk路径")
+            return
+        }
+        val file = File(text)
+        if (!file.exists()) {
+            MyDialog.show("文件路径错误")
+            return
+        }
+        val apkPath = file.absolutePath
+        MLog.log("apkPath: $apkPath")
+        MyDialog.show("正在push")
+        MyAdbUtil.push(apkPath)
+        MyAdbUtil.startApkToolService()
+        MyAdbUtil.sendBroadcast(Intent("apktool.install").putExtras("text", "${Config.APP_TOOL_ANDROID_DIR}/${file.name}"))
         MyDialog.show("push完成,正在安装,请手动确认")
     }
 
