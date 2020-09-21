@@ -339,7 +339,6 @@ class ApkToolUi : BaseComponent {
                 MyDialog.show("失败:设备没有连接")
                 return
             }
-
             MyDialog.show("正在安装...")
             val apkFilePath = MyUtil.getResourcesFile(Config.APP_TOOL_SRC_PATH).absolutePath
             if (!File(apkFilePath).exists()) {
@@ -383,10 +382,8 @@ class ApkToolUi : BaseComponent {
         val apkPath = file.absolutePath
         MLog.log("apkPath: $apkPath")
         MyDialog.show("正在push")
-        MyAdbUtil.startActivity(Intent(Config.APP_TOOL_ANDROID_PACKAGE, ".MainActivity"))
         MyAdbUtil.push(apkPath)
-        MyAdbUtil.startApkToolService()
-        MyAdbUtil.sendBroadcast(Intent("apktool.install").putExtras("text", "${Config.APP_TOOL_ANDROID_DIR}/${file.name}"))
+        MyAdbUtil.installApk("${Config.APP_TOOL_ANDROID_DIR}/${file.name}")
         MyDialog.show("push完成,正在安装,请手动确认")
     }
 
@@ -403,8 +400,7 @@ class ApkToolUi : BaseComponent {
         val text = contentView.text.trim()
         if (!StringUtil.isEmpty(text)) {
             if (text.startsWith("adb")) {
-                val shell = "adb ${mDeviceId} ${text.substring(3)}"
-                MyUtil.exec(shell)
+                MyAdbUtil.execOhter(text.substring(3))
                 MyDialog.show("成功")
             }
         } else {

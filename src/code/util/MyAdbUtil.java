@@ -45,6 +45,10 @@ public class MyAdbUtil {
         return startService(new Intent(Config.APP_TOOL_ANDROID_PACKAGE, ".AppToolService"));
     }
 
+    public static List<String> execOhter(String exec) {
+        return adbManager.adbExec(exec);
+    }
+
     /**
      * 打电话
      */
