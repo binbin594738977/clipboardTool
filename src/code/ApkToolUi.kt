@@ -161,7 +161,6 @@ class ApkToolUi : BaseComponent {
         horizontalBox.add(p3)
     }
 
-
     /**
      * 竖向容器2
      */
@@ -198,8 +197,9 @@ class ApkToolUi : BaseComponent {
         val btnShell = getDefualtBtn("执行adb命令", ActionListener { exADB() })
         verateBox.add(btnSystemInstallApk)
         verateBox.add(Box.createVerticalStrut(15));    //添加高度为15的垂直框架
+        verateBox.add(btnApptoolInstallApk)
+        verateBox.add(Box.createVerticalStrut(15));    //添加高度为15的垂直框架
         verateBox.add(btnShell)
-
     }
 
     fun getDefualtBtn(text: String, l: ActionListener): JPanel {
