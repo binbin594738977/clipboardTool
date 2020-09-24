@@ -1,11 +1,11 @@
 package code
 
 
-import code.util.MyAdbUtil
 import code.adb.Intent
 import code.core.Config
 import code.dialog.MyDialog
 import code.util.MLog
+import code.util.MyAdbUtil
 import code.util.MyUtil
 import code.util.StringUtil
 import com.google.gson.Gson
@@ -125,11 +125,19 @@ class ApkToolUi : BaseComponent {
         contentView.transferHandler = object : TransferHandler() {
             override fun importData(c: JComponent, t: Transferable): Boolean {
                 try {
-                    val fileListPath = t.getTransferData(DataFlavor.javaFileListFlavor) as List<*>
-                    //此处输出的文件/文件夹的名字以及路径
-                    println("文件名: $fileListPath")
-                    contentView.text = fileListPath[0].toString()
-                    return true
+                    //是文件
+                    if (t.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
+                        val fileListPath = t.getTransferData(DataFlavor.javaFileListFlavor) as List<*>
+                        //此处输出的文件/文件夹的名字以及路径
+                        MLog.log("文件名: $fileListPath")
+                        contentView.text = contentView.text + fileListPath[0].toString()
+                        return true
+                    } else if (t.isDataFlavorSupported(DataFlavor.stringFlavor)) {
+                        val str = t.getTransferData(DataFlavor.stringFlavor) as String
+                        MLog.log("字符串: $str")
+                        contentView.text = contentView.text + str
+                        return true
+                    }
                 } catch (e: UnsupportedFlavorException) {
                     MLog.log(e)
                     return true
@@ -194,7 +202,9 @@ class ApkToolUi : BaseComponent {
         //按钮<Apptool安装apk>
         val btnApptoolInstallApk = getDefualtBtn("Apptool安装apk", ActionListener { apptoolInstallApk() })
         //按钮<执行shell命令>
-        val btnShell = getDefualtBtn("执行adb命令", ActionListener { exADB() })
+        val btnShell = getDefualtBtn("执行adb命令", ActionListener {
+            exADB()
+        })
         verateBox.add(btnSystemInstallApk)
         verateBox.add(Box.createVerticalStrut(15));    //添加高度为15的垂直框架
         verateBox.add(btnApptoolInstallApk)
