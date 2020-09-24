@@ -30,6 +30,7 @@ class ApkToolUi : BaseComponent {
     var jdeviceIdButton = JButton("设备ID: (点击选择)")
     val contentView = JTextArea()
 
+
     //设备id
     var mDeviceId = ""
 
