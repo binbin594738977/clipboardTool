@@ -435,7 +435,6 @@ class ApkToolUi : BaseComponent {
         MyDialog.show("push完成,正在安装,请手动确认")
     }
 
-
     /**
      * 执行adb命令
      */
