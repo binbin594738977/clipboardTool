@@ -13,13 +13,13 @@ import com.google.gson.JsonObject
 import java.awt.Dimension
 import java.awt.Font
 import java.awt.Insets
-import java.awt.datatransfer.DataFlavor
-import java.awt.datatransfer.Transferable
-import java.awt.datatransfer.UnsupportedFlavorException
+import java.awt.Toolkit
+import java.awt.datatransfer.*
 import java.awt.event.ActionListener
 import java.io.File
 import java.io.IOException
 import javax.swing.*
+
 
 class ApkToolUi : BaseComponent {
     constructor() {
@@ -138,6 +138,8 @@ class ApkToolUi : BaseComponent {
                         MLog.log("字符串: $str")
                         contentView.text = contentView.text + str
                         return true
+                    } else {
+                        MLog.log("未知操作")
                     }
                 } catch (e: UnsupportedFlavorException) {
                     MLog.log(e)
@@ -153,8 +155,16 @@ class ApkToolUi : BaseComponent {
             override fun canImport(c: JComponent, flavors: Array<DataFlavor>): Boolean {
                 return true
             }
-        }
 
+            override fun exportToClipboard(comp: JComponent, clipboard: Clipboard, action: Int) {
+                super.exportToClipboard(comp, clipboard, action)
+                MLog.log("复制内容: " + contentView.selectedText)
+                // 封装文本内容
+                val trans: Transferable = StringSelection(contentView.selectedText)
+                // 把文本内容设置到系统剪贴板
+                clipboard.setContents(trans, null)
+            }
+        }
         verateBox.add(contentView)
     }
 
