@@ -13,7 +13,6 @@ import com.google.gson.JsonObject
 import java.awt.Dimension
 import java.awt.Font
 import java.awt.Insets
-import java.awt.Toolkit
 import java.awt.datatransfer.*
 import java.awt.event.ActionListener
 import java.io.File
@@ -363,23 +362,16 @@ class ApkToolUi : BaseComponent {
                 return
             }
             MyDialog.show("正在安装...")
-            val apkFilePath = MyUtil.getResourcesFile(Config.APP_TOOL_SRC_PATH).absolutePath
-            if (!File(apkFilePath).exists()) {
+            val apkPath = MyUtil.getResourcesFile(Config.APP_TOOL_SRC_PATH).absolutePath
+            if (!File(apkPath).exists()) {
                 MyDialog.show("文件不存在...")
                 return
             }
-            val exec = MyAdbUtil.install(apkFilePath)
-            result = "完成"
-            for (s in exec) {
-                result = result + "\n\r" + s
-            }
-            if (result.contains("Failure [INSTALL_FAILED_USER_RESTRICTED]")) {
-                MyDialog.showLong("无法用usb直接安装,已经push到sdcard目录,请手动安装...")
-                MyAdbUtil.push(apkFilePath)
-                MyAdbUtil.installApk("${Config.APP_TOOL_ANDROID_DIR}/${File(apkFilePath).name}")
-            } else if (result.contains("Success")) {
-                MyDialog.show("安装完成")
-            }
+            MLog.log("apkPath: $apkPath")
+            MyDialog.show("正在push")
+            MyAdbUtil.push(apkPath)
+            MyAdbUtil.installApk("${Config.APP_TOOL_ANDROID_DIR}/${File(apkPath).name}")
+            MyDialog.show("push完成,正在安装,请手动确认")
         } catch (e: Exception) {
             MLog.log(e)
         }

@@ -40,7 +40,7 @@ class ApkToolTool {
      */
     fun bale(sourceDir: String, outApkPath: String) {
         val execStr = ("java -jar ${apktool.absolutePath} b $sourceDir " +
-                "-o $outApkPath"//输出
+                "-o $outApkPath" //输出
                 )
         MyUtil.exec(execStr)
     }
