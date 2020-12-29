@@ -8,30 +8,31 @@ object AndroidToolMain {
     @JvmStatic
     fun main(args: Array<String>) {
 //        smali2dex()
-//        packZip()
-        apk2smali()
+//        apk2smali()
+        smali2apk()
+//        signed()
     }
 
     fun apk2smali() {
         MLog.log("开始反编译")
         val apkToolTool = ApkToolTool()
-        val apkPath = "/Users/fuheng/code/IdeaProjects/AppToolGUI/services.jar"
-        val outDir = "/Users/fuheng/code/IdeaProjects/AppToolGUI/apkout/smali"
+        val apkPath = "/Users/fuheng/code/IdeaProjects/AppToolGUI/temp/Settings.apk"
+        val outDir = "/Users/fuheng/code/IdeaProjects/AppToolGUI/temp/smali"
         apkToolTool.decompile(apkPath, outDir)
     }
 
     fun smali2apk() {
         MLog.log("开始打包")
         val apkToolTool = ApkToolTool()
-        val sourceDir = "/Users/fuheng/code/IdeaProjects/AppToolGUI/smali"
-        val outApkPath = "/Users/fuheng/code/IdeaProjects/AppToolGUI/apkout/unsigned.apk"
+        val sourceDir = "/Users/fuheng/code/IdeaProjects/AppToolGUI/temp/smali"
+        val outApkPath = "/Users/fuheng/code/IdeaProjects/AppToolGUI/temp/unsigned.apk"
         apkToolTool.bale(sourceDir, outApkPath)
     }
 
     fun signed() {
         MLog.log("开始签名")
-        val unsignedApkPath = "/Users/fuheng/IdeaProjects/AppToolGUI/unZip/unZip.zip"
-        val genSignedApkPath = "/Users/fuheng/IdeaProjects/AppToolGUI/apkout/signed.apk"
+        val unsignedApkPath = "/Users/fuheng/code/IdeaProjects/AppToolGUI/temp/unsigned.apk"
+        val genSignedApkPath = "/Users/fuheng/code/IdeaProjects/AppToolGUI/temp/signed.apk"
         val keystoreTool = KeystoreTool()
         keystoreTool.signatureApk(unsignedApkPath, genSignedApkPath)
     }
