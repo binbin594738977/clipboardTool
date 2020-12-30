@@ -1,24 +1,23 @@
-package code.util;
+package code.adb;
 
+import java.io.File;
 import java.util.List;
 
-import code.adb.AdbManager;
-import code.adb.AndroidUri;
-import code.adb.Intent;
 import code.core.Config;
 
-public class MyAdbUtil {
+public class AdbHelp {
     public static final String APP_INSTALL_MIMETYPE = "application/vnd.android.package-archive";
     public static final String APP_STREAM_MIMETYPE = "application/octet-stream";
+    public static final String SDCARD_PHONE = "/sdcard/";
 
     public static AdbManager adbManager = new AdbManager();
 
-    public static void main(String[] args) {
-        startActivity(new Intent(Config.APP_TOOL_ANDROID_PACKAGE,".MainActivity"));
+    public static void setDeviceConnectionListener(AdbManager.DeviceConnectionListener mDeviceConnectionListener) {
+        adbManager.setDeviceConnectionListener(mDeviceConnectionListener);
     }
 
-    public static void setDeviceId(String deviceId) {
-        adbManager.setDeviceId(deviceId);
+    public static boolean checkDeviceConnection(){
+       return adbManager.checkDeviceConnection();
     }
 
     public static List<String> startActivity(Intent intent) {
@@ -33,8 +32,8 @@ public class MyAdbUtil {
         return adbManager.sendBroadcast(intent);
     }
 
-    public static List<String> push(String filePath) {
-        return adbManager.push(filePath, Config.APP_TOOL_ANDROID_DIR );
+    public static List<String> pushSdcard(File filePath) {
+        return adbManager.push(filePath.getAbsolutePath(), SDCARD_PHONE + filePath.getName());
     }
 
     public static List<String> install(String filePath) {
@@ -45,9 +44,13 @@ public class MyAdbUtil {
         return startService(new Intent(Config.APP_TOOL_ANDROID_PACKAGE, ".AppToolService"));
     }
 
-    public static List<String> execOhter(String exec) {
+    public static List<String> execADB(String exec) {
+        if (exec.startsWith("adb")) {
+            exec = exec.substring(3);
+        }
         return adbManager.adbExec(exec);
     }
+
 
     /**
      * 打电话
@@ -77,4 +80,6 @@ public class MyAdbUtil {
         intent.setDataAndType(AndroidUri.fromPath(androidApkPath), APP_INSTALL_MIMETYPE);
         return startActivity(intent);
     }
+
+
 }

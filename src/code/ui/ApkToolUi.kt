@@ -2,11 +2,12 @@ package code.ui
 
 
 import code.Main
+import code.adb.AdbHelp
+import code.adb.AdbManager
 import code.adb.Intent
 import code.core.Config
 import code.dialog.MyDialog
 import code.util.MLog
-import code.util.MyAdbUtil
 import code.util.MyUtil
 import code.util.StringUtil
 import com.google.gson.Gson
@@ -24,6 +25,28 @@ import javax.swing.*
 class ApkToolUi : BaseComponent {
     constructor() {
         getContentPane().add(MainUi())
+        AdbHelp.setDeviceConnectionListener(mDeviceConnectionListener)
+    }
+
+    var mDeviceConnectionListener = object : AdbManager.DeviceConnectionListener {
+        override fun changgeDevice(device: String?) {
+            jdeviceIdButton.text = "设备ID: " + device
+            MLog.log("设备改变了 ${device}")
+        }
+
+        override fun noConnection() {
+            MyDialog.show("失败:设备没有连接")
+        }
+
+        override fun selectDevice(devices: MutableList<String>): Int {
+            val selectIndex = JOptionPane.showOptionDialog(this@ApkToolUi, "请选择设备...", "提示", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, devices.toTypedArray(), null)
+            if (selectIndex >= 0 && selectIndex < devices.size) {
+                jdeviceIdButton.text = "设备ID: " + devices[selectIndex]
+            }
+            MLog.log("设备选择了 ${selectIndex}")
+            return selectIndex
+        }
+
     }
 
     var jdeviceIdButton = JButton("设备ID: (点击选择)")
@@ -93,7 +116,7 @@ class ApkToolUi : BaseComponent {
         btn.horizontalAlignment = SwingConstants.CENTER
         btn.addActionListener {
             Main.getThreadQueue().post {
-                selectDeviceId()
+                AdbHelp.checkDeviceConnection()
             }
         }
         verateBox.add(btnSelectDevice)
@@ -212,9 +235,7 @@ class ApkToolUi : BaseComponent {
         //按钮<Apptool安装apk>
         val btnApptoolInstallApk = getDefualtBtn("Apptool安装apk", ActionListener { apptoolInstallApk() })
         //按钮<执行shell命令>
-        val btnShell = getDefualtBtn("执行adb命令", ActionListener {
-            exADB()
-        })
+        val btnShell = getDefualtBtn("执行adb命令", ActionListener { exADB() })
         verateBox.add(btnSystemInstallApk)
         verateBox.add(Box.createVerticalStrut(15));    //添加高度为15的垂直框架
         verateBox.add(btnApptoolInstallApk)
@@ -230,6 +251,10 @@ class ApkToolUi : BaseComponent {
         btn.horizontalAlignment = SwingConstants.CENTER
         btn.addActionListener({
             Main.getThreadQueue().post {
+                //检查设备连接状态
+                if (!AdbHelp.checkDeviceConnection()) {
+                    return@post
+                }
                 l.actionPerformed(it)
             }
         })
@@ -237,104 +262,17 @@ class ApkToolUi : BaseComponent {
     }
 //---------------------------------------------------------------------
 
-
-    /**
-     * 选择设备id,只有一个设备不会弹框
-     * @return 如果选择了设备,返回设备id , 没有返回""
-     */
-    private fun selectDeviceId(): Boolean {
-        val devices = getDevices()
-        if (devices.size == 0) {
-            return false
-        } else if (devices.size == 1) {
-            setDeviceId(devices.get(0))
-            return true
-        } else {
-            //多个设备
-            val selectIndex = JOptionPane.showOptionDialog(this, "请选择设备...", "提示", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, devices.toTypedArray(), null)
-            MLog.log("选择了 ${selectIndex}")
-            if (selectIndex != -1) {
-                setDeviceId(devices.get(selectIndex))
-                return true
-            }
-        }
-        return false
-    }
-
-    /**
-     * 设置设备
-     */
-    fun setDeviceId(deviceId: String) {
-        jdeviceIdButton.text = "设备ID: " + deviceId
-        mDeviceId = deviceId
-        MyAdbUtil.setDeviceId(deviceId)
-    }
-
-    /**
-     * 得到所以连接的设备
-     */
-    fun getDevices(): List<String> {
-        val arrayList = ArrayList<String>()
-        val results = MyUtil.exec("adb devices")
-        if (results.size <= 2) {
-            MyDialog.show("没有连接设备")
-        } else {
-            for (result in results) {
-                val split = result.split("\t")
-                if (split.size > 1) {
-                    arrayList.add(split[0])
-                    MLog.log("设备id: ${split[0]}")
-                }
-            }
-        }
-        return arrayList
-    }
-
-    /**
-     * 检查设备连接
-     */
-    fun checkDeviceConnection(): Boolean {
-        val devices = getDevices()
-        if (devices.size == 0) {
-            //没有设备连接
-            return false
-        } else if (devices.size >= 2) {
-            //多个设备连接,先判断是否由指定的设备
-            //如果指定的deviceid包含在内,直接用
-            if (devices.contains(mDeviceId)) {
-                return true
-            }
-            //如果不包含,先选择
-            return selectDeviceId()
-        } else {
-            //只有一个设备
-            setDeviceId(devices.get(0))
-            return true
-        }
-    }
-
-
     fun setClipboard() {
-        if (!checkDeviceConnection()) {
-            MyDialog.show("失败:设备没有连接")
-            return
-        }
-
         val text = contentView.getText()
-        MyAdbUtil.startApkToolService()
-        MyAdbUtil.sendBroadcast(Intent("clipper.set").putExtras("text", text))
+        AdbHelp.startApkToolService()
+        AdbHelp.sendBroadcast(Intent("clipper.set").putExtras("text", text))
         MyDialog.show("设置成功")
     }
 
     fun getClipboard() {
         try {
-            if (!checkDeviceConnection()) {
-                MyDialog.show("失败:设备没有连接")
-                return
-            }
-
-            MyAdbUtil.startApkToolService()
-            val execResult = MyAdbUtil.sendBroadcast(Intent("clipper.get"))
+            AdbHelp.startApkToolService()
+            val execResult = AdbHelp.sendBroadcast(Intent("clipper.get"))
             if (execResult != null && execResult.size == 2) {
                 var str = execResult.get(1)
                 val top = "Broadcast completed: "
@@ -357,20 +295,19 @@ class ApkToolUi : BaseComponent {
     fun installApkTool() {
         var result = ""
         try {
-            if (!checkDeviceConnection()) {
-                MyDialog.show("失败:设备没有连接")
+            if (!AdbHelp.checkDeviceConnection()) {
                 return
             }
             MyDialog.show("正在安装...")
-            val apkPath = MyUtil.getResourcesFile(Config.APP_TOOL_SRC_PATH).absolutePath
-            if (!File(apkPath).exists()) {
+            val apkFile = MyUtil.getResourcesFile(Config.APP_TOOL_SRC_PATH)
+            if (!apkFile.exists()) {
                 MyDialog.show("文件不存在...")
                 return
             }
-            MLog.log("apkPath: $apkPath")
+            MLog.log("apkFile: $apkFile")
             MyDialog.show("正在push")
-            MyAdbUtil.push(apkPath)
-            MyAdbUtil.installApk("${Config.APP_TOOL_ANDROID_DIR}/${File(apkPath).name}")
+            AdbHelp.pushSdcard(apkFile)
+            AdbHelp.installApk("${AdbHelp.SDCARD_PHONE}${apkFile.name}")
             MyDialog.show("push完成,正在安装,请手动确认")
         } catch (e: Exception) {
             MLog.log(e)
@@ -379,11 +316,6 @@ class ApkToolUi : BaseComponent {
 
 
     private fun systemInstallApk() {
-        if (!checkDeviceConnection()) {
-            MyDialog.show("失败:设备没有连接")
-            return
-        }
-
         val text = contentView.text.trim()
         if (StringUtil.isEmpty(text) || !File(text).exists()) {
             MyDialog.show("请填写apk路径")
@@ -394,20 +326,14 @@ class ApkToolUi : BaseComponent {
             MyDialog.show("文件路径错误")
             return
         }
-        val apkPath = file.absolutePath
-        MLog.log("apkPath: $apkPath")
+        MLog.log("apkPath: $file")
         MyDialog.show("正在push")
-        MyAdbUtil.push(apkPath)
-        MyAdbUtil.installApk("${Config.APP_TOOL_ANDROID_DIR}/${file.name}")
+        AdbHelp.pushSdcard(file)
+        AdbHelp.installApk("${AdbHelp.SDCARD_PHONE}${file.name}")
         MyDialog.show("push完成,正在安装,请手动确认")
     }
 
     private fun apptoolInstallApk() {
-        if (!checkDeviceConnection()) {
-            MyDialog.show("失败:设备没有连接")
-            return
-        }
-
         val text = contentView.text.trim()
         if (StringUtil.isEmpty(text) || !File(text).exists()) {
             MyDialog.show("请填写apk路径")
@@ -418,12 +344,11 @@ class ApkToolUi : BaseComponent {
             MyDialog.show("文件路径错误")
             return
         }
-        val apkPath = file.absolutePath
-        MLog.log("apkPath: $apkPath")
+        MLog.log("apkPath: $file")
         MyDialog.show("正在push")
-        MyAdbUtil.push(apkPath)
-        MyAdbUtil.startApkToolService()
-        MyAdbUtil.sendBroadcast(Intent("apktool.install").putExtras("text", "${Config.APP_TOOL_ANDROID_DIR}/${file.name}"))
+        AdbHelp.pushSdcard(file)
+        AdbHelp.startApkToolService()
+        AdbHelp.sendBroadcast(Intent("apktool.install").putExtras("text", "${AdbHelp.SDCARD_PHONE}${file.name}"))
         MyDialog.show("push完成,正在安装,请手动确认")
     }
 
@@ -431,17 +356,10 @@ class ApkToolUi : BaseComponent {
      * 执行adb命令
      */
     private fun exADB() {
-        if (!checkDeviceConnection()) {
-            MyDialog.show("失败:设备没有连接")
-            return
-        }
-
         val text = contentView.text.trim()
         if (!StringUtil.isEmpty(text)) {
-            if (text.startsWith("adb")) {
-                MyAdbUtil.execOhter(text.substring(3))
-                MyDialog.show("成功")
-            }
+            AdbHelp.execADB(text.substring(3))
+            MyDialog.show("成功")
         } else {
             MyDialog.show("没有命令")
         }

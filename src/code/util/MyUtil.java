@@ -174,7 +174,7 @@ public class MyUtil {
      * 得到输出目录
      */
     public static File getOutDir() {
-        return new File(MyEnvironment.getUserHome() + "/" + Config.OUT_DIR);
+        return new File(EnvironmentUtil.getUserHome() + "/" + Config.OUT_DIR);
     }
 
     /**
