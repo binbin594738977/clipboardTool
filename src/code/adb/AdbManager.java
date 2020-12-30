@@ -7,8 +7,8 @@ import code.adb.exec.ActivityManagerExec;
 import code.adb.exec.InstallExec;
 import code.adb.exec.PushExec;
 import code.dialog.MyDialog;
+import code.util.CmdUtil;
 import code.util.MLog;
-import code.util.MyUtil;
 import code.util.StringUtil;
 
 public class AdbManager {
@@ -40,7 +40,7 @@ public class AdbManager {
             sb.append(" ");
         }
         sb.append(exec);
-        return MyUtil.exec(sb.toString());
+        return CmdUtil.exec(sb.toString());
     }
 
     public List<String> startActivity(Intent intent) {
@@ -100,7 +100,7 @@ public class AdbManager {
      */
     public List<String> getDevices() {
         List<String> arrayList = new ArrayList();
-        List<String> results = MyUtil.exec("adb devices");
+        List<String> results = CmdUtil.exec("adb devices");
         if (results.size() <= 2) {
             MyDialog.show("没有连接设备");
         } else {

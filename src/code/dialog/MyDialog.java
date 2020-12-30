@@ -1,11 +1,10 @@
 package code.dialog;
 
-import javax.swing.*;
-
 import java.awt.*;
+import java.util.Timer;
 import java.util.TimerTask;
 
-import code.util.MyUtil;
+import javax.swing.*;
 
 @SuppressWarnings("serial")
 public class MyDialog extends JWindow {
@@ -29,7 +28,7 @@ public class MyDialog extends JWindow {
         dialog.back.setText(str);
         dialog.setVisible(false);
         dialog.setVisible(true);
-        MyUtil.timerDelayed(new TimerTask() {
+        timerDelayed(new TimerTask() {
             public void run() {
                 dialog.setVisible(false);
                 dialog.dispose();
@@ -56,6 +55,11 @@ public class MyDialog extends JWindow {
         setBackground(Color.BLACK);
         contentPane.setBackground(Color.BLACK);
         contentPane.add(back);
+    }
+
+    public static void timerDelayed(TimerTask task, long delayed) {
+        java.util.Timer timer = new Timer();// 实例化Timer类
+        timer.schedule(task, delayed);// 这里毫秒
     }
 
 }

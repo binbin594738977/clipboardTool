@@ -7,8 +7,8 @@ import code.adb.AdbManager
 import code.adb.Intent
 import code.core.Config
 import code.dialog.MyDialog
+import code.util.EnvironmentUtil
 import code.util.MLog
-import code.util.MyUtil
 import code.util.StringUtil
 import com.google.gson.Gson
 import com.google.gson.JsonObject
@@ -23,6 +23,11 @@ import javax.swing.*
 
 
 class ApkToolUi : BaseComponent {
+    val APK_TOOL_APP_PATH = File(EnvironmentUtil.getOutDir(), "apptool.apk")
+    val APP_TOOL_ANDROID_PACKAGE = "com.fh.apptool"
+    val APP_TOOL_SERVICE = ".AppToolService"
+
+
     constructor() {
         getContentPane().add(MainUi())
         AdbHelp.setDeviceConnectionListener(mDeviceConnectionListener)
@@ -51,10 +56,6 @@ class ApkToolUi : BaseComponent {
 
     var jdeviceIdButton = JButton("设备ID: (点击选择)")
     val contentView = JTextArea()
-
-
-    //设备id
-    var mDeviceId = ""
 
     override fun setting() {
         title = Config.PROJECT_NAME
@@ -264,14 +265,14 @@ class ApkToolUi : BaseComponent {
 
     fun setClipboard() {
         val text = contentView.getText()
-        AdbHelp.startApkToolService()
+        startApkToolService()
         AdbHelp.sendBroadcast(Intent("clipper.set").putExtras("text", text))
         MyDialog.show("设置成功")
     }
 
     fun getClipboard() {
         try {
-            AdbHelp.startApkToolService()
+            startApkToolService()
             val execResult = AdbHelp.sendBroadcast(Intent("clipper.get"))
             if (execResult != null && execResult.size == 2) {
                 var str = execResult.get(1)
@@ -293,21 +294,19 @@ class ApkToolUi : BaseComponent {
     }
 
     fun installApkTool() {
-        var result = ""
         try {
             if (!AdbHelp.checkDeviceConnection()) {
                 return
             }
             MyDialog.show("正在安装...")
-            val apkFile = MyUtil.getResourcesFile(Config.APP_TOOL_SRC_PATH)
-            if (!apkFile.exists()) {
+            if (!APK_TOOL_APP_PATH.exists()) {
                 MyDialog.show("文件不存在...")
                 return
             }
-            MLog.log("apkFile: $apkFile")
+            MLog.log("apkFile: $APK_TOOL_APP_PATH")
             MyDialog.show("正在push")
-            AdbHelp.pushSdcard(apkFile)
-            AdbHelp.installApk("${AdbHelp.SDCARD_PHONE}${apkFile.name}")
+            AdbHelp.pushSdcard(APK_TOOL_APP_PATH)
+            AdbHelp.installApk("${AdbHelp.SDCARD_PHONE}${APK_TOOL_APP_PATH.name}")
             MyDialog.show("push完成,正在安装,请手动确认")
         } catch (e: Exception) {
             MLog.log(e)
@@ -347,7 +346,7 @@ class ApkToolUi : BaseComponent {
         MLog.log("apkPath: $file")
         MyDialog.show("正在push")
         AdbHelp.pushSdcard(file)
-        AdbHelp.startApkToolService()
+        startApkToolService()
         AdbHelp.sendBroadcast(Intent("apktool.install").putExtras("text", "${AdbHelp.SDCARD_PHONE}${file.name}"))
         MyDialog.show("push完成,正在安装,请手动确认")
     }
@@ -363,6 +362,16 @@ class ApkToolUi : BaseComponent {
         } else {
             MyDialog.show("没有命令")
         }
+    }
+
+
+    /**
+     * 开启apktool服务
+     *
+     * @return
+     */
+    fun startApkToolService(): List<String?>? {
+        return AdbHelp.startService(Intent(APP_TOOL_ANDROID_PACKAGE, APP_TOOL_SERVICE))
     }
 }
 

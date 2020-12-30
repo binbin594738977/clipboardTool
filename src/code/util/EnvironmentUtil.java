@@ -1,5 +1,8 @@
 package code.util;
 
+import java.io.File;
+
+
 public class EnvironmentUtil {
     /**
      * 用户主页目录
@@ -8,6 +11,12 @@ public class EnvironmentUtil {
         return System.getProperty("user.home");
     }
 
+    /**
+     * 得到输出目录
+     */
+    public static File getOutDir() {
+        return new File(getJarPathOrRunPath());
+    }
 
     /**
      * 如果是jar包得到jar包的父目录,如果不是jar包,得到当前运行的目录

@@ -4,7 +4,7 @@ import java.io.File;
 
 public class MLog {
     private static int logMod = 0;
-    private final static File cacheFile = new File(MyUtil.getOutDir().getAbsolutePath() + "/" + "log.txt");
+    private final static File cacheFile = new File(EnvironmentUtil.getOutDir(), "log.txt");
 
     public static void log(Object msg) {
         switch (logMod) {
@@ -12,7 +12,7 @@ public class MLog {
                 System.out.println(msg);
                 break;
             case 1:
-                MyUtil.printFile(msg.toString() + "\n\r", cacheFile, true);
+                FileUtil.writeStringToFile(msg.toString() + "\n\r", cacheFile, true);
                 break;
         }
 
